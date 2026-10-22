@@ -1,8 +1,13 @@
 package controllers
 
 import com.gu.media.MediaAtomMakerPermissionsProvider
-import com.gu.media.iconik.{IconikCommission, IconikProject, IconikWorkingGroup}
-import com.gu.pandahmac.HMACAuthActions
+import com.gu.media.iconik.{
+  CachedEntitiesFailure,
+  IconikRequestFailure,
+  IconikValidationReport,
+  IconikValidationService,
+  IconikValidationSummary
+}
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.model.{
   AuthenticatedUser,
@@ -12,48 +17,38 @@ import com.gu.pandomainauth.model.{
   User
 }
 import com.gu.pandomainauth.service.{CryptoConf, KeyPair}
-import data.{DataStores, IconikStore}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar.{mock, when}
-import org.scanamo.{DynamoReadError, MissingProperty}
+import org.mockito.MockitoSugar.{mock, verifyZeroInteractions, when}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.Configuration
-import play.api.libs.json.{JsArray, JsBoolean, JsNull, JsObject, JsValue, Json}
-import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
+import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
 import play.api.mvc.{AnyContent, ControllerComponents}
 import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers._
-import util.AWSConfig
 
-import java.time.{Clock, Instant, ZoneOffset}
 import java.security.KeyPairGenerator
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import java.time.{Clock, Instant, ZoneOffset}
+import scala.concurrent.Future
 
 class IconikValidationControllerTest extends AnyFlatSpec with Matchers {
-  private val testControllerComponents = Helpers.stubControllerComponents()
-  private val hmacSecret = "test-hmac-secret"
-  private val apiPath = "/api/iconik/validate"
-  private val iconikAppId = "test-iconik-app"
-  private val iconikToken = "test-iconik-token"
-  private val credentialsArn = "test-iconik-credentials-arn"
-  private val keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair()
-  private val signing = CryptoConf.SigningAndVerification(
-    KeyPair(keyPair.getPublic, keyPair.getPrivate),
-    Nil
-  )
-  private val authSettings = mock[PanDomainAuthSettingsRefresher]
-  private val permissionsProvider = mock[MediaAtomMakerPermissionsProvider]
+  private val controllerComponents = Helpers.stubControllerComponents()
+  private val permissions = mock[MediaAtomMakerPermissionsProvider]
+  private val settings = mock[PanDomainAuthSettingsRefresher]
   private val authWsClient = mock[WSClient]
   private val browserUser =
     User("Test", "Editor", "test.editor@guardian.co.uk", None)
+  private val keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair()
 
-  when(authSettings.system).thenReturn("video")
-  when(authSettings.domain).thenReturn("example.test")
-  when(authSettings.settings).thenReturn(
+  when(settings.system).thenReturn("video")
+  when(settings.domain).thenReturn("example.test")
+  when(settings.settings).thenReturn(
     PanDomainAuthSettings(
-      signing,
+      CryptoConf.SigningAndVerification(
+        KeyPair(keyPair.getPublic, keyPair.getPrivate),
+        Nil
+      ),
       CookieSettings("test-panda"),
       OAuthSettings(
         "test-client",
@@ -64,63 +59,29 @@ class IconikValidationControllerTest extends AnyFlatSpec with Matchers {
       None
     )
   )
-  when(permissionsProvider.hasPermission(any(), any())).thenReturn(true)
+  when(permissions.hasPermission(any(), any())).thenReturn(true)
 
   private val authActions = new PanDomainAuthActions {
     override protected val clock: Clock =
       Clock.fixed(Instant.now(), ZoneOffset.UTC)
-    override def conf: Configuration = Configuration(
-      "secret" -> hmacSecret,
-      "host" -> "example.test"
-    )
+    override def conf: Configuration =
+      Configuration("secret" -> "test-secret", "host" -> "example.test")
     override def wsClient: WSClient = authWsClient
     override def controllerComponents: ControllerComponents =
-      testControllerComponents
-    override val panDomainSettings: PanDomainAuthSettingsRefresher =
-      authSettings
+      IconikValidationControllerTest.this.controllerComponents
+    override val panDomainSettings: PanDomainAuthSettingsRefresher = settings
     override def permissionsProvider: MediaAtomMakerPermissionsProvider =
-      IconikValidationControllerTest.this.permissionsProvider
+      IconikValidationControllerTest.this.permissions
   }
 
-  private def storesWith(
-      projects: Either[DynamoReadError, List[IconikProject]] = Right(Nil),
-      commissions: Either[DynamoReadError, List[IconikCommission]] = Right(Nil),
-      workingGroups: Either[DynamoReadError, List[IconikWorkingGroup]] =
-        Right(Nil)
-  ): DataStores = {
-    val stores = mock[DataStores]
-    val iconikStore = mock[IconikStore[DynamoReadError]]
-    when(stores.iconikDataStore).thenReturn(iconikStore)
-    when(iconikStore.listProjectsAsync()(any[ExecutionContext]))
-      .thenReturn(Future.successful(projects))
-    when(iconikStore.listCommissionsAsync()(any[ExecutionContext]))
-      .thenReturn(Future.successful(commissions))
-    when(iconikStore.listWorkingGroupsAsync()(any[ExecutionContext]))
-      .thenReturn(Future.successful(workingGroups))
-    stores
-  }
-
-  private def controller(stores: DataStores, wsClient: WSClient) = {
-    val awsConfig = mock[AWSConfig]
-    when(awsConfig.getString("aws.secretsmanager.iconikCredentials"))
-      .thenReturn(Some(credentialsArn))
-    when(awsConfig.getSecret(credentialsArn))
-      .thenReturn(
-        Success(
-          Json
-            .obj("app-id" -> iconikAppId, "token" -> iconikToken)
-            .toString
-        )
-      )
-
+  private def controller(
+      service: IconikValidationService
+  ): IconikValidationController =
     new IconikValidationController(
       authActions,
-      stores,
-      awsConfig,
-      wsClient,
-      testControllerComponents
+      service,
+      controllerComponents
     )
-  }
 
   private def callValidate(
       controller: IconikValidationController,
@@ -129,217 +90,60 @@ class IconikValidationControllerTest extends AnyFlatSpec with Matchers {
     val user =
       if (validUser) browserUser
       else browserUser.copy(email = "test.editor@example.test")
-    val authenticatedUser = AuthenticatedUser(
-      user,
-      "video",
-      Set("video"),
-      Instant.now().plusSeconds(3600),
-      multiFactor = true
+    val cookie = authActions.generateCookie(
+      AuthenticatedUser(
+        user,
+        "video",
+        Set("video"),
+        Instant.now().plusSeconds(3600),
+        multiFactor = true
+      )
     )
-    val cookie = authActions.generateCookie(authenticatedUser)
     val request: FakeRequest[AnyContent] =
-      FakeRequest(GET, apiPath).withCookies(cookie)
+      FakeRequest(GET, "/api/iconik/validate").withCookies(cookie)
+
     controller.validateEntities.apply(request)
   }
 
-  private def stubIconikResponse(
-      wsClient: WSClient,
-      entityId: String,
-      response: WSResponse
-  ): Unit = {
-    val request = mock[WSRequest]
-    when(
-      wsClient.url(
-        s"https://app.iconik.io/API/assets/v1/collections/$entityId/"
-      )
-    ).thenReturn(request)
-    when(
-      request.addHttpHeaders(
-        "App-ID" -> iconikAppId,
-        "Auth-Token" -> iconikToken,
-        "Accept" -> "application/json"
-      )
-    ).thenReturn(request)
-    when(request.get()).thenReturn(Future.successful(response))
-  }
-
-  private def iconikResponse(
-      statusCode: Int,
-      body: play.api.libs.json.JsValue = Json.obj()
-  ): WSResponse = {
-    val response = mock[WSResponse]
-    when(response.status).thenReturn(statusCode)
-    when(response.json).thenReturn(body)
-    response
-  }
-
-  "controller construction" should "fail when the Iconik credentials ARN is missing" in {
-    val awsConfig = mock[AWSConfig]
-    when(awsConfig.getString("aws.secretsmanager.iconikCredentials"))
-      .thenReturn(None)
-
-    intercept[IllegalStateException] {
-      new IconikValidationController(
-        mock[HMACAuthActions],
-        mock[DataStores],
-        awsConfig,
-        mock[WSClient],
-        Helpers.stubControllerComponents()
-      )
-    }
-  }
-
-  it should "fail when the Iconik credentials secret cannot be retrieved" in {
-    val awsConfig = mock[AWSConfig]
-    val retrievalError = new RuntimeException("secret lookup failed")
-    when(awsConfig.getString("aws.secretsmanager.iconikCredentials"))
-      .thenReturn(Some("secret-arn"))
-    when(awsConfig.getSecret("secret-arn"))
-      .thenReturn(Failure(retrievalError))
-
-    val exception = intercept[IllegalStateException] {
-      new IconikValidationController(
-        mock[HMACAuthActions],
-        mock[DataStores],
-        awsConfig,
-        mock[WSClient],
-        Helpers.stubControllerComponents()
-      )
-    }
-
-    exception.getCause shouldBe retrievalError
-  }
-
-  "validateEntities" should "reject a browser user outside the Guardian domain" in {
-    val wsClient = mock[WSClient]
-    val controller = this.controller(mock[DataStores], wsClient)
-
-    status(callValidate(controller, validUser = false)) shouldBe FORBIDDEN
-  }
-
-  it should "report mixed Iconik results and summary counts" in {
-    val project = IconikProject(
-      id = "project-1",
-      title = "Cached project",
-      status = "active",
-      workingGroupId = "working-group-1",
-      commissionId = "commission-1",
-      masterPlaceholderId = None,
-      createdAt = None
+  "validateEntities" should "return the validation report" in {
+    val report = IconikValidationReport(
+      entities = Nil,
+      summary = IconikValidationSummary(0, 0, 0, 0)
     )
-    val commission = IconikCommission(
-      workingGroupId = "working-group-1",
-      id = "commission-1",
-      title = "Cached commission"
-    )
-    val workingGroup = IconikWorkingGroup(
-      id = "working-group-1",
-      title = "Cached working group"
-    )
-    val wsClient = mock[WSClient]
-    stubIconikResponse(
-      wsClient,
-      project.id,
-      iconikResponse(
-        OK,
-        Json.obj("title" -> "Renamed project", "parent_id" -> "other-commission")
-      )
-    )
-    stubIconikResponse(wsClient, commission.id, iconikResponse(NOT_FOUND))
-    stubIconikResponse(
-      wsClient,
-      workingGroup.id,
-      iconikResponse(
-        OK,
-        Json.obj(
-          "title" -> workingGroup.title,
-          "parent_id" -> "iconik-parent"
-        )
-      )
-    )
-    val controller = this.controller(
-      storesWith(
-        projects = Right(List(project)),
-        commissions = Right(List(commission)),
-        workingGroups = Right(List(workingGroup))
-      ),
-      wsClient
-    )
+    val service = mock[IconikValidationService]
+    when(service.validate()).thenReturn(Future.successful(Right(report)))
 
-    val result = callValidate(controller)
+    val result = callValidate(controller(service))
 
     status(result) shouldBe OK
-    val body = contentAsJson(result)
-    (body \ "summary").as[JsObject] shouldBe Json.obj(
-      "total" -> 3,
-      "missing" -> 1,
-      "nameMismatches" -> 1,
-      "parentMismatches" -> 1
-    )
-    val entities = (body \ "entities").as[JsArray].value
-    (entities(0) \ "nameMatches").as[Boolean] shouldBe false
-    (entities(0) \ "parentMatches").as[Boolean] shouldBe false
-    (entities(1) \ "exists").as[Boolean] shouldBe false
-    (entities(2) \ "parentMatches").as[JsValue] shouldBe JsNull
+    contentAsJson(result) shouldBe report.toJson
   }
 
-  it should "return 503 when cached entities cannot be read" in {
-    val controller = this.controller(
-      storesWith(projects = Left(MissingProperty)),
-      mock[WSClient]
-    )
+  it should "reject an invalid browser user without running validation" in {
+    val service = mock[IconikValidationService]
 
-    val result = callValidate(controller)
-
-    status(result) shouldBe SERVICE_UNAVAILABLE
-    (contentAsJson(result) \ "error").as[String] shouldBe
-      "Failed to read cached Iconik entities"
+    status(callValidate(controller(service), validUser = false)) shouldBe
+      FORBIDDEN
+    verifyZeroInteractions(service)
   }
 
-  it should "return 502 when Iconik returns an unexpected status" in {
-    val project = IconikProject(
-      id = "project-1",
-      title = "Cached project",
-      status = "active",
-      workingGroupId = "working-group-1",
-      commissionId = "commission-1",
-      masterPlaceholderId = None,
-      createdAt = None
-    )
-    val wsClient = mock[WSClient]
-    stubIconikResponse(
-      wsClient,
-      project.id,
-      iconikResponse(INTERNAL_SERVER_ERROR)
-    )
-    val controller = this.controller(
-      storesWith(projects = Right(List(project))),
-      wsClient
+  it should "map cached-data and Iconik failures to their HTTP statuses" in {
+    val failures = Seq(
+      CachedEntitiesFailure("cache unavailable") ->
+        (SERVICE_UNAVAILABLE, "Failed to read cached Iconik entities"),
+      IconikRequestFailure("Iconik unavailable") ->
+        (BAD_GATEWAY, "Failed to validate entities with Iconik")
     )
 
-    val result = callValidate(controller)
+    failures.foreach { case (failure, (expectedStatus, expectedMessage)) =>
+      val service = mock[IconikValidationService]
+      when(service.validate())
+        .thenReturn(Future.successful(Left(failure)))
 
-    status(result) shouldBe BAD_GATEWAY
-    (contentAsJson(result) \ "error").as[String] shouldBe
-      "Failed to validate entities with Iconik"
-  }
+      val result = callValidate(controller(service))
 
-  "parentMatchesJson" should "return unknown when the expected parent is unavailable" in {
-    IconikValidationController.parentMatchesJson(
-      None,
-      Some("iconik-parent")
-    ) shouldBe JsNull
-  }
-
-  "parentMatches" should "return whether the Iconik parent matches" in {
-    IconikValidationController.parentMatches(
-      "expected-parent",
-      Some("expected-parent")
-    ) shouldBe true
-
-    IconikValidationController.parentMatches(
-      "expected-parent",
-      Some("different-parent")
-    ) shouldBe false
+      status(result) shouldBe expectedStatus
+      (contentAsJson(result) \ "error").as[String] shouldBe expectedMessage
+    }
   }
 }
