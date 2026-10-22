@@ -32,3 +32,5 @@ The automated review on 21 October raised two further points:
 - [lindseydew, 22 October](https://github.com/guardian/media-atom-maker/pull/1719#discussion_r4347034288), on `app/controllers/IconikValidationController.scala`: “I think this config parsing could be a bit more readable with a for-comp. Or even ditching the either and throwing a RunTime exception if credential data is not available”
 - [lindseydew, 22 October](https://github.com/guardian/media-atom-maker/pull/1719#discussion_r4347050174), on `app/controllers/IconikValidationController.scala`: “I would separate calling the API and getting a response, and then checking the result based on the response”
 - [lindseydew, 22 October](https://github.com/guardian/media-atom-maker/pull/1719#discussion_r4347065328), on `test/controllers/IconikValidationControllerTest.scala`: “If you split out the computation from the printing, the signature here could be a straightforward boolean”
+
+**Implementation update (22 October):** Iconik requests now return a `WSResponse` from `fetchIconikEntity`; `checkIconikResponse` handles response interpretation separately.
