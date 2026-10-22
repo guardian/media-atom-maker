@@ -9,11 +9,7 @@ import com.gu.atom.play.ReindexController
 import com.gu.media.aws.{AwsCredentials, S3Access, SecretsManagerAccess}
 import com.gu.media.config.{Code, Stage}
 import com.gu.media.telemetry.{Telemetry, HMACClient}
-import com.gu.media.{
-  Capi,
-  MediaAtomMakerPermissionsProvider,
-  Settings
-}
+import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.media.iconik.{
   IconikApiClient,
   IconikCredentials,
