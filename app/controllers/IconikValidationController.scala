@@ -195,8 +195,8 @@ class IconikValidationController(
                 s"Iconik returned an invalid parent_id for ${entity.id}"
               )
           }
-        val parentMatches: JsValue =
-          IconikValidationController.parentMatches(
+        val parentMatches =
+          IconikValidationController.parentMatchesJson(
             entity.parentId,
             iconikParentId
           )
@@ -304,11 +304,16 @@ class IconikValidationController(
 
 private[controllers] object IconikValidationController {
   def parentMatches(
+      expectedParentId: String,
+      iconikParentId: Option[String]
+  ): Boolean =
+    iconikParentId.contains(expectedParentId)
+
+  def parentMatchesJson(
       expectedParentId: Option[String],
       iconikParentId: Option[String]
   ): JsValue =
-    expectedParentId match {
-      case Some(expected) => JsBoolean(iconikParentId.contains(expected))
-      case None           => JsNull
-    }
+    expectedParentId
+      .map(parentId => JsBoolean(parentMatches(parentId, iconikParentId)))
+      .getOrElse(JsNull)
 }
