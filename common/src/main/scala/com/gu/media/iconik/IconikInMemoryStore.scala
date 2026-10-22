@@ -1,6 +1,7 @@
 package com.gu.media.iconik
 
 import scala.collection.mutable.{ListBuffer => MutableList}
+import scala.concurrent.{ExecutionContext, Future}
 
 class IconikInMemoryStore[T <: IconikItem, E] extends IconikDataStore[T, E] {
 
@@ -11,6 +12,10 @@ class IconikInMemoryStore[T <: IconikItem, E] extends IconikDataStore[T, E] {
   )
 
   override def list: Either[E, List[T]] = Right(store.toList)
+
+  override def listAsync()(implicit
+      executionContext: ExecutionContext
+  ): Future[Either[E, List[T]]] = Future(list)
 
   override def upsert(item: T): Unit = {
     val maybeExistingItem = store.find(_.id == item.id)
