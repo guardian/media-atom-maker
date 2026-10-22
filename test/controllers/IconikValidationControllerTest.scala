@@ -51,22 +51,22 @@ class IconikValidationControllerTest extends AnyFlatSpec with Matchers {
     exception.getCause shouldBe retrievalError
   }
 
-  "parentMatches" should "return unknown when the expected parent is unavailable" in {
-    IconikValidationController.parentMatches(
+  "parentMatchesJson" should "return unknown when the expected parent is unavailable" in {
+    IconikValidationController.parentMatchesJson(
       None,
       Some("iconik-parent")
     ) shouldBe JsNull
   }
 
-  it should "compare the Iconik parent with a known expected parent" in {
+  "parentMatches" should "return whether the Iconik parent matches" in {
     IconikValidationController.parentMatches(
-      Some("expected-parent"),
+      "expected-parent",
       Some("expected-parent")
-    ) shouldBe JsBoolean(true)
+    ) shouldBe true
 
     IconikValidationController.parentMatches(
-      Some("expected-parent"),
+      "expected-parent",
       Some("different-parent")
-    ) shouldBe JsBoolean(false)
+    ) shouldBe false
   }
 }
