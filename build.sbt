@@ -235,7 +235,8 @@ lazy val uploader = (project in file("uploader"))
       ),
       "SendToTranscoderV2" -> LambdaConfig(
         description =
-          "Sends a complete video to the AWS MediaConvert transcoder"
+          "Sends a complete video to the AWS MediaConvert transcoder",
+        timeout = 900
       ),
       "AddSubtitlesToMP4" -> LambdaConfig(
         description = "Adds subtitles to an MP4 video using ffmpeg"
