@@ -1,7 +1,7 @@
 package controllers
 
 import com.gu.media.iconik.{
-  CachedEntitiesFailure,
+  DynamoFailure,
   IconikRequestFailure,
   IconikValidationError,
   IconikValidationService
@@ -28,13 +28,13 @@ class IconikValidationController(
   def validateEntities: Action[AnyContent] = AuthAction.async { _ =>
     validationService.validate().map {
       case Right(report) => Ok(report.toJson)
-      case Left(error: CachedEntitiesFailure) =>
-        logFailure("failed to read cached Iconik entities", error)
+      case Left(error: DynamoFailure) =>
+        logFailure("failed to read Iconik entities from Dynamo", error)
         ServiceUnavailable(
-          Json.obj("error" -> "Failed to read cached Iconik entities")
+          Json.obj("error" -> "Failed to read Iconik entities from Dynamo")
         )
       case Left(error: IconikRequestFailure) =>
-        logFailure("failed to validate cached Iconik entities", error)
+        logFailure("failed to validate Iconik entities", error)
         BadGateway(
           Json.obj("error" -> "Failed to validate entities with Iconik")
         )

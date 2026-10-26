@@ -15,21 +15,21 @@ class IconikValidationService(
 
   def validate()
       : Future[Either[IconikValidationError, IconikValidationReport]] = {
-    val cached =
-      try cachedEntities
+    val fromDynamo =
+      try dynamoEntities
       catch {
         case NonFatal(error) =>
           Future.successful(
             Left(
-              CachedEntitiesFailure(
-                "Failed to read cached Iconik entities",
+              DynamoFailure(
+                "Failed to read Iconik entities from Dynamo",
                 Some(error)
               )
             )
           )
       }
 
-    cached.flatMap {
+    fromDynamo.flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right(entities) =>
         validateEntities(entities)
@@ -37,7 +37,7 @@ class IconikValidationService(
           .recover { case NonFatal(error) =>
             Left(
               IconikRequestFailure(
-                "Failed to validate cached entities with Iconik",
+                "Failed to validate entities with Iconik",
                 Some(error)
               )
             )
@@ -45,9 +45,9 @@ class IconikValidationService(
     }
   }
 
-  private def cachedEntities
+  private def dynamoEntities
       : Future[Either[IconikValidationError, List[IconikEntity]]] = {
-    val projects = cachedList(iconikStore.listProjectsAsync())(project =>
+    val projects = normalisedList(iconikStore.listProjectsAsync())(project =>
       IconikEntity(
         "project",
         project.id,
@@ -56,7 +56,7 @@ class IconikValidationService(
       )
     )
     val commissions =
-      cachedList(iconikStore.listCommissionsAsync())(commission =>
+      normalisedList(iconikStore.listCommissionsAsync())(commission =>
         IconikEntity(
           "commission",
           commission.id,
@@ -65,7 +65,7 @@ class IconikValidationService(
         )
       )
     val workingGroups =
-      cachedList(iconikStore.listWorkingGroupsAsync())(workingGroup =>
+      normalisedList(iconikStore.listWorkingGroupsAsync())(workingGroup =>
         IconikEntity(
           "working_group",
           workingGroup.id,
@@ -87,21 +87,21 @@ class IconikValidationService(
     }
   }.recover { case NonFatal(error) =>
     Left(
-      CachedEntitiesFailure(
-        "Failed to read cached Iconik entities",
+      DynamoFailure(
+        "Failed to read Iconik entities from Dynamo",
         Some(error)
       )
     )
   }
 
-  private def cachedList[A](
+  private def normalisedList[A](
       result: Future[Either[DynamoReadError, List[A]]]
   )(
       toEntity: A => IconikEntity
   ): Future[Either[IconikValidationError, List[IconikEntity]]] =
     result.map {
       case Left(error) =>
-        Left(CachedEntitiesFailure(error.toString))
+        Left(DynamoFailure(error.toString))
       case Right(entities) => Right(entities.map(toEntity))
     }
 

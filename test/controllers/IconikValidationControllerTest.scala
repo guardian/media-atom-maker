@@ -2,7 +2,7 @@ package controllers
 
 import com.gu.media.MediaAtomMakerPermissionsProvider
 import com.gu.media.iconik.{
-  CachedEntitiesFailure,
+  DynamoFailure,
   IconikRequestFailure,
   IconikValidationReport,
   IconikValidationService,
@@ -127,10 +127,10 @@ class IconikValidationControllerTest extends AnyFlatSpec with Matchers {
     verifyZeroInteractions(service)
   }
 
-  it should "map cached-data and Iconik failures to their HTTP statuses" in {
+  it should "map Dynamo and Iconik failures to their HTTP statuses" in {
     val failures = Seq(
-      CachedEntitiesFailure("cache unavailable") ->
-        (SERVICE_UNAVAILABLE, "Failed to read cached Iconik entities"),
+      DynamoFailure("dynamo unavailable") ->
+        (SERVICE_UNAVAILABLE, "Failed to read Iconik entities from Dynamo"),
       IconikRequestFailure("Iconik unavailable") ->
         (BAD_GATEWAY, "Failed to validate entities with Iconik")
     )

@@ -139,7 +139,7 @@ sealed trait IconikValidationError {
   def cause: Option[Throwable]
 }
 
-case class CachedEntitiesFailure(
+case class DynamoFailure(
     message: String,
     cause: Option[Throwable] = None
 ) extends IconikValidationError

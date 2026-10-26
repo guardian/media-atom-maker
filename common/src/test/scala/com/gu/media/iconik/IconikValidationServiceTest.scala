@@ -15,7 +15,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
   "IconikValidationService" should "compare mixed results and summarize mismatches" in {
     val project = IconikProject(
       id = "project-1",
-      title = "Cached project",
+      title = "Stored project",
       status = "active",
       workingGroupId = "working-group-1",
       commissionId = "commission-1",
@@ -25,10 +25,10 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     val commission = IconikCommission(
       workingGroupId = "working-group-1",
       id = "commission-1",
-      title = "Cached commission"
+      title = "Stored commission"
     )
     val workingGroup =
-      IconikWorkingGroup("working-group-1", "Cached working group")
+      IconikWorkingGroup("working-group-1", "Stored working group")
     val projectStore =
       new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
     val commissionStore = new IconikInMemoryStoreWithParentIndex[
@@ -64,7 +64,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
               Right(
                 Some(
                   IconikCollection(
-                    "Cached working group",
+                    "Stored working group",
                     Some("iconik-parent")
                   )
                 )
@@ -85,7 +85,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
             "exists" -> true,
             "nameMatches" -> false,
             "parentMatches" -> false,
-            "expectedName" -> "Cached project",
+            "expectedName" -> "Stored project",
             "iconikName" -> "Renamed project",
             "expectedParentId" -> "commission-1",
             "iconikParentId" -> "other-commission"
@@ -96,7 +96,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
             "exists" -> false,
             "nameMatches" -> JsNull,
             "parentMatches" -> JsNull,
-            "expectedName" -> "Cached commission",
+            "expectedName" -> "Stored commission",
             "iconikName" -> JsNull,
             "expectedParentId" -> "working-group-1",
             "iconikParentId" -> JsNull
@@ -107,8 +107,8 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
             "exists" -> true,
             "nameMatches" -> true,
             "parentMatches" -> JsNull,
-            "expectedName" -> "Cached working group",
-            "iconikName" -> "Cached working group",
+            "expectedName" -> "Stored working group",
+            "iconikName" -> "Stored working group",
             "expectedParentId" -> JsNull,
             "iconikParentId" -> "iconik-parent"
           )
@@ -127,7 +127,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     val entity = IconikEntity(
       entityType = "commission",
       id = "commission-1",
-      name = "Cached commission",
+      name = "Stored commission",
       parentId = Some("working-group-1")
     )
 
@@ -138,7 +138,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
         exists = false,
         nameMatches = None,
         parentMatches = None,
-        expectedName = "Cached commission",
+        expectedName = "Stored commission",
         iconikName = None,
         expectedParentId = Some("working-group-1"),
         iconikParentId = None
@@ -149,13 +149,13 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     val project = IconikEntity(
       entityType = "project",
       id = "project-1",
-      name = "Cached project",
+      name = "Stored project",
       parentId = Some("commission-1")
     )
 
     IconikValidationService.validateEntity(
       project,
-      Some(IconikCollection("Cached project", Some("commission-1")))
+      Some(IconikCollection("Stored project", Some("commission-1")))
     ) shouldBe
       IconikEntityValidationResult(
         entityType = "project",
@@ -163,8 +163,8 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
         exists = true,
         nameMatches = Some(true),
         parentMatches = Some(true),
-        expectedName = "Cached project",
-        iconikName = Some("Cached project"),
+        expectedName = "Stored project",
+        iconikName = Some("Stored project"),
         expectedParentId = Some("commission-1"),
         iconikParentId = Some("commission-1")
       )
@@ -179,7 +179,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
         exists = true,
         nameMatches = Some(false),
         parentMatches = Some(false),
-        expectedName = "Cached project",
+        expectedName = "Stored project",
         iconikName = Some("Renamed project"),
         expectedParentId = Some("commission-1"),
         iconikParentId = Some("other-commission")
@@ -190,13 +190,13 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     val workingGroup = IconikEntity(
       entityType = "working_group",
       id = "working-group-1",
-      name = "Cached working group",
+      name = "Stored working group",
       parentId = None
     )
 
     IconikValidationService.validateEntity(
       workingGroup,
-      Some(IconikCollection("Cached working group", Some("iconik-parent")))
+      Some(IconikCollection("Stored working group", Some("iconik-parent")))
     ) shouldBe
       IconikEntityValidationResult(
         entityType = "working_group",
@@ -204,8 +204,8 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
         exists = true,
         nameMatches = Some(true),
         parentMatches = None,
-        expectedName = "Cached working group",
-        iconikName = Some("Cached working group"),
+        expectedName = "Stored working group",
+        iconikName = Some("Stored working group"),
         expectedParentId = None,
         iconikParentId = Some("iconik-parent")
       )
