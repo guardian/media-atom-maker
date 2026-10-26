@@ -123,6 +123,94 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     )
   }
 
+  "IconikValidationService.validateEntity" should "report a missing collection" in {
+    val entity = IconikEntity(
+      entityType = "commission",
+      id = "commission-1",
+      name = "Cached commission",
+      parentId = Some("working-group-1")
+    )
+
+    IconikValidationService.validateEntity(entity, None) shouldBe
+      IconikEntityValidationResult(
+        entityType = "commission",
+        id = "commission-1",
+        exists = false,
+        nameMatches = None,
+        parentMatches = None,
+        expectedName = "Cached commission",
+        iconikName = None,
+        expectedParentId = Some("working-group-1"),
+        iconikParentId = None
+      )
+  }
+
+  it should "compare name and parent when the collection exists" in {
+    val project = IconikEntity(
+      entityType = "project",
+      id = "project-1",
+      name = "Cached project",
+      parentId = Some("commission-1")
+    )
+
+    IconikValidationService.validateEntity(
+      project,
+      Some(IconikCollection("Cached project", Some("commission-1")))
+    ) shouldBe
+      IconikEntityValidationResult(
+        entityType = "project",
+        id = "project-1",
+        exists = true,
+        nameMatches = Some(true),
+        parentMatches = Some(true),
+        expectedName = "Cached project",
+        iconikName = Some("Cached project"),
+        expectedParentId = Some("commission-1"),
+        iconikParentId = Some("commission-1")
+      )
+
+    IconikValidationService.validateEntity(
+      project,
+      Some(IconikCollection("Renamed project", Some("other-commission")))
+    ) shouldBe
+      IconikEntityValidationResult(
+        entityType = "project",
+        id = "project-1",
+        exists = true,
+        nameMatches = Some(false),
+        parentMatches = Some(false),
+        expectedName = "Cached project",
+        iconikName = Some("Renamed project"),
+        expectedParentId = Some("commission-1"),
+        iconikParentId = Some("other-commission")
+      )
+  }
+
+  it should "leave parentMatches empty when no parent is expected" in {
+    val workingGroup = IconikEntity(
+      entityType = "working_group",
+      id = "working-group-1",
+      name = "Cached working group",
+      parentId = None
+    )
+
+    IconikValidationService.validateEntity(
+      workingGroup,
+      Some(IconikCollection("Cached working group", Some("iconik-parent")))
+    ) shouldBe
+      IconikEntityValidationResult(
+        entityType = "working_group",
+        id = "working-group-1",
+        exists = true,
+        nameMatches = Some(true),
+        parentMatches = None,
+        expectedName = "Cached working group",
+        iconikName = Some("Cached working group"),
+        expectedParentId = None,
+        iconikParentId = Some("iconik-parent")
+      )
+  }
+
   "IconikCredentials.fromSecret" should "reject secrets without a token" in {
     intercept[IllegalStateException] {
       IconikCredentials.fromSecret("""{"app-id":"test-app"}""")

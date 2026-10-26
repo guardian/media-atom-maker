@@ -122,47 +122,20 @@ class IconikValidationService(
           case Left(error) => Future.successful(Left(error))
           case Right(previousResults) =>
             Future
-              .traverse(batch)(validateEntity)
+              .traverse(batch) { entity =>
+                iconikApiClient
+                  .getCollection(entity.id, credentials)
+                  .map(
+                    _.map(
+                      IconikValidationService.validateEntity(entity, _)
+                    )
+                  )
+              }
               .map { batchResults =>
                 sequence(batchResults).map(previousResults ++ _)
               }
         }
       }
-
-  private def validateEntity(
-      entity: IconikEntity
-  ): Future[Either[IconikValidationError, IconikEntityValidationResult]] =
-    iconikApiClient.getCollection(entity.id, credentials).map {
-      case Left(error) => Left(error)
-      case Right(None) =>
-        Right(
-          IconikEntityValidationResult(
-            entityType = entity.entityType,
-            id = entity.id,
-            exists = false,
-            nameMatches = None,
-            parentMatches = None,
-            expectedName = entity.name,
-            iconikName = None,
-            expectedParentId = entity.parentId,
-            iconikParentId = None
-          )
-        )
-      case Right(Some(collection)) =>
-        Right(
-          IconikEntityValidationResult(
-            entityType = entity.entityType,
-            id = entity.id,
-            exists = true,
-            nameMatches = Some(entity.name == collection.title),
-            parentMatches = entity.parentId.map(collection.parentId.contains),
-            expectedName = entity.name,
-            iconikName = Some(collection.title),
-            expectedParentId = entity.parentId,
-            iconikParentId = collection.parentId
-          )
-        )
-    }
 
   private def sequence[A](
       results: List[Either[IconikValidationError, A]]
@@ -174,5 +147,38 @@ class IconikValidationService(
         Right(result :: accumulated)
       case (Left(error), _) => Left(error)
       case (_, Left(error)) => Left(error)
+    }
+}
+
+object IconikValidationService {
+  def validateEntity(
+      entity: IconikEntity,
+      collection: Option[IconikCollection]
+  ): IconikEntityValidationResult =
+    collection match {
+      case None =>
+        IconikEntityValidationResult(
+          entityType = entity.entityType,
+          id = entity.id,
+          exists = false,
+          nameMatches = None,
+          parentMatches = None,
+          expectedName = entity.name,
+          iconikName = None,
+          expectedParentId = entity.parentId,
+          iconikParentId = None
+        )
+      case Some(collection) =>
+        IconikEntityValidationResult(
+          entityType = entity.entityType,
+          id = entity.id,
+          exists = true,
+          nameMatches = Some(entity.name == collection.title),
+          parentMatches = entity.parentId.map(collection.parentId.contains),
+          expectedName = entity.name,
+          iconikName = Some(collection.title),
+          expectedParentId = entity.parentId,
+          iconikParentId = collection.parentId
+        )
     }
 }
