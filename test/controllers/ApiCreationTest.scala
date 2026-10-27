@@ -207,6 +207,7 @@ class ApiCreationTest extends AnyFlatSpec with Matchers {
       api,
       mock[PlutoController],
       mock[IconikController],
+      mock[IconikValidationController],
       uploads,
       mock[Youtube],
       mock[ReindexController],

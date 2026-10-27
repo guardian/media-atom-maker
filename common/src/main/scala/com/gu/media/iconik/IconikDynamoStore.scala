@@ -2,10 +2,11 @@ package com.gu.media.iconik
 
 import com.gu.media.aws.DynamoAccess
 import com.gu.media.logging.Logging
-import org.scanamo.{DynamoFormat, DynamoReadError, Scanamo, Table}
+import org.scanamo.{DynamoFormat, DynamoReadError, Scanamo, ScanamoAsync, Table}
 import org.scanamo.syntax._
 
 import java.time.Instant
+import scala.concurrent.{ExecutionContext, Future}
 
 case class IndexConfig(indexName: String, indexKey: String)
 
@@ -42,6 +43,13 @@ class IconikDynamoStore[DynamoTableModel <: IconikItem: DynamoFormat](
       scanamo
         .exec(table.scan())
     ).map(_.sortBy(_.title))
+
+  override def listAsync()(implicit
+      executionContext: ExecutionContext
+  ): Future[Either[DynamoReadError, List[DynamoTableModel]]] =
+    ScanamoAsync(aws.dynamoDbAsyncSdkV2)
+      .exec(table.scan())
+      .map(results => sequence(results).map(_.sortBy(_.title)))
 
   def upsert(item: DynamoTableModel): Unit = {
     log.info(s"Upserting $item")
