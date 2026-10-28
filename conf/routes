@@ -34,7 +34,8 @@ GET            /api/iconik/projects/:id                         controllers.Icon
 GET            /api/iconik/working-groups                       controllers.IconikController.getWorkingGroups()
 GET            /api/iconik/working-groups/:id                    controllers.IconikController.getWorkingGroup(id)
 GET            /api/iconik/working-groups/:id/commissions        controllers.IconikController.getCommissionsByWorkingGroupId(id)
-GET            /api/iconik/validate                              controllers.IconikValidationController.validateEntities()
+GET            /api/iconik/validate-entities                     controllers.IconikValidationController.listEntities()
+GET            /api/iconik/validate/:entityType/:id               controllers.IconikValidationController.validateEntity(entityType: String, id: String)
 # helpful redirect for gustaf/teleporter
 GET            /videos/:id/open-in-iconik                       controllers.IconikController.openInIconik(id)
 

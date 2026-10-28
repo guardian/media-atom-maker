@@ -3,7 +3,7 @@ package com.gu.media.iconik
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scanamo.DynamoReadError
-import play.api.libs.json.{JsNull, Json}
+import play.api.libs.json.Json
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
@@ -12,7 +12,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
   private implicit val executionContext: ExecutionContext =
     ExecutionContext.global
 
-  "IconikValidationService" should "compare mixed results and summarize mismatches" in {
+  "IconikValidationService" should "validate only the requested entity" in {
     val project = IconikProject(
       id = "project-1",
       title = "Stored project",
@@ -43,11 +43,13 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     val store =
       new IconikStore(projectStore, commissionStore, workingGroupStore)
     val credentials = IconikCredentials("test-app", "test-token")
+    var requestedIds = List.empty[String]
     val client = new IconikCollectionClient {
       override def getCollection(
           entityId: String,
           providedCredentials: IconikCredentials
-      ) =
+      ) = {
+        requestedIds = requestedIds :+ entityId
         Future.successful(
           entityId match {
             case "project-1" =>
@@ -71,10 +73,21 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
               )
           }
         )
+      }
     }
 
     val service = new IconikValidationService(store, client, credentials)
-    val result = Await.result(service.validate(), 5.seconds)
+    Await.result(service.listEntityIds(), 5.seconds) shouldBe Right(
+      List(
+        IconikEntityId("project", "project-1"),
+        IconikEntityId("commission", "commission-1"),
+        IconikEntityId("working_group", "working-group-1")
+      )
+    )
+    val result = Await.result(
+      service.validate(IconikEntityType.Project, "project-1"),
+      5.seconds
+    )
 
     result.map(_.toJson) shouldBe Right(
       Json.obj(
@@ -89,38 +102,49 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
             "iconikName" -> "Renamed project",
             "expectedParentId" -> "commission-1",
             "iconikParentId" -> "other-commission"
-          ),
-          Json.obj(
-            "entityType" -> "commission",
-            "id" -> "commission-1",
-            "exists" -> false,
-            "nameMatches" -> JsNull,
-            "parentMatches" -> JsNull,
-            "expectedName" -> "Stored commission",
-            "iconikName" -> JsNull,
-            "expectedParentId" -> "working-group-1",
-            "iconikParentId" -> JsNull
-          ),
-          Json.obj(
-            "entityType" -> "working_group",
-            "id" -> "working-group-1",
-            "exists" -> true,
-            "nameMatches" -> true,
-            "parentMatches" -> JsNull,
-            "expectedName" -> "Stored working group",
-            "iconikName" -> "Stored working group",
-            "expectedParentId" -> JsNull,
-            "iconikParentId" -> "iconik-parent"
           )
         ),
         "summary" -> Json.obj(
-          "total" -> 3,
-          "missing" -> 1,
+          "total" -> 1,
+          "missing" -> 0,
           "nameMismatches" -> 1,
           "parentMismatches" -> 1
         )
       )
     )
+    requestedIds shouldBe List("project-1")
+  }
+
+  it should "not query Iconik when the requested Dynamo entity is missing" in {
+    val projectStore =
+      new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
+    val commissionStore = new IconikInMemoryStoreWithParentIndex[
+      IconikCommission,
+      DynamoReadError
+    ]()
+    val workingGroupStore =
+      new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
+    var queriedIconik = false
+    val client = new IconikCollectionClient {
+      override def getCollection(
+          entityId: String,
+          providedCredentials: IconikCredentials
+      ) = {
+        queriedIconik = true
+        Future.successful(Right(None))
+      }
+    }
+    val service = new IconikValidationService(
+      new IconikStore(projectStore, commissionStore, workingGroupStore),
+      client,
+      IconikCredentials("test-app", "test-token")
+    )
+
+    Await.result(
+      service.validate(IconikEntityType.Project, "missing"),
+      5.seconds
+    ) shouldBe Left(IconikEntityNotFound("project", "missing"))
+    queriedIconik shouldBe false
   }
 
   "IconikValidationService.validateEntity" should "report a missing collection" in {

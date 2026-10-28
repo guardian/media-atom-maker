@@ -53,6 +53,22 @@ case class IconikEntity(
     parentId: Option[String]
 )
 
+case class IconikEntityId(entityType: String, id: String)
+
+sealed abstract class IconikEntityType(val value: String)
+
+object IconikEntityType {
+  case object Project extends IconikEntityType("project")
+  case object Commission extends IconikEntityType("commission")
+  case object WorkingGroup extends IconikEntityType("working_group")
+
+  val values: List[IconikEntityType] =
+    List(Project, Commission, WorkingGroup)
+
+  def fromString(value: String): Option[IconikEntityType] =
+    values.find(_.value == value)
+}
+
 case class IconikCollection(title: String, parentId: Option[String])
 
 object IconikCollection {
@@ -148,3 +164,9 @@ case class IconikRequestFailure(
     message: String,
     cause: Option[Throwable] = None
 ) extends IconikValidationError
+
+case class IconikEntityNotFound(entityType: String, id: String)
+    extends IconikValidationError {
+  override val message: String = s"No $entityType found with ID $id"
+  override val cause: Option[Throwable] = None
+}
