@@ -5,6 +5,7 @@ import com.gu.media.iconik.{
   IconikInMemoryStore,
   IconikInMemoryStoreWithParentIndex,
   IconikProject,
+  IconikStore,
   IconikUpsertRequest,
   IconikWorkingGroup
 }

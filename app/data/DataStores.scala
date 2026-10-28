@@ -10,6 +10,7 @@ import com.gu.media.iconik.{
   IconikDynamoStore,
   IconikDynamoStoreWithParentIndex,
   IconikProject,
+  IconikStore,
   IconikWorkingGroup,
   IndexConfig
 }
