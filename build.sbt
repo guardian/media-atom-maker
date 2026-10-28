@@ -28,7 +28,7 @@ val awsLambdaEventsVersion = "3.16.1"
 val logbackClassicVersion = "1.5.18"
 val logstashLogbackEncoderVersion = "4.8"
 
-val guavaVersion = "31.1-jre"
+val guavaVersion = "33.7.2-jre"
 val googleOauthVersion = "1.34.1"
 val googleHttpJacksonVersion = "1.43.3"
 val commonsLoggingVersion = "1.1.1"
