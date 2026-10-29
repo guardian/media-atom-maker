@@ -3,7 +3,7 @@
 const fs = require('fs');
 
 const ArgumentParser = require('argparse').ArgumentParser;
-const parseHocon = require('hoconjs/build/hoconjs');
+const parseHocon = require('hoconjs');
 const chalk = require('chalk');
 
 const HMACRequest = require('./hmac-request');

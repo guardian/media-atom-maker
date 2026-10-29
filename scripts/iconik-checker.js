@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs/promises');
-const parseHocon = require('hoconjs/build/hoconjs');
+const parseHocon = require('hoconjs');
 const HMACRequest = require('./hmac/hmac-request');
 
 const configFile =
