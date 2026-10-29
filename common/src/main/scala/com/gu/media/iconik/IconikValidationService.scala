@@ -11,33 +11,82 @@ class IconikValidationService(
     credentials: IconikCredentials
 )(implicit executionContext: ExecutionContext) {
 
-  private val maxConcurrentRequests = 10
+  def listEntityIds(): Future[Either[DynamoFailure, List[IconikEntityId]]] =
+    try {
+      val projects =
+        normalisedEntityIds(iconikStore.listProjectsAsync())(project =>
+          IconikEntityId(IconikEntityType.Project.value, project.id)
+        )
+      val commissions =
+        normalisedEntityIds(iconikStore.listCommissionsAsync())(commission =>
+          IconikEntityId(IconikEntityType.Commission.value, commission.id)
+        )
+      val workingGroups =
+        normalisedEntityIds(iconikStore.listWorkingGroupsAsync())(
+          workingGroup =>
+            IconikEntityId(
+              IconikEntityType.WorkingGroup.value,
+              workingGroup.id
+            )
+        )
 
-  def validate()
-      : Future[Either[IconikValidationError, IconikValidationReport]] = {
-    val fromDynamo =
-      try dynamoEntities
+      for {
+        projectIds <- projects
+        commissionIds <- commissions
+        workingGroupIds <- workingGroups
+      } yield {
+        for {
+          projects <- projectIds
+          commissions <- commissionIds
+          workingGroups <- workingGroupIds
+        } yield projects ++ commissions ++ workingGroups
+      }
+    } catch {
+      case NonFatal(error) =>
+        Future.successful(
+          Left(
+            DynamoFailure(
+              "Failed to read Iconik entity IDs from Dynamo",
+              Some(error)
+            )
+          )
+        )
+    }
+
+  def validate(
+      entityType: IconikEntityType,
+      id: String
+  ): Future[Either[IconikValidationError, IconikValidationReport]] = {
+    val entityResult =
+      try getEntity(entityType, id)
       catch {
         case NonFatal(error) =>
-          Future.successful(
-            Left(
-              DynamoFailure(
-                "Failed to read Iconik entities from Dynamo",
-                Some(error)
-              )
+          Left(
+            DynamoFailure(
+              s"Failed to read Iconik ${entityType.value} from Dynamo",
+              Some(error)
             )
           )
       }
 
-    fromDynamo.flatMap {
+    entityResult match {
       case Left(error) => Future.successful(Left(error))
-      case Right(entities) =>
-        validateEntities(entities)
-          .map(_.map(IconikValidationReport.fromEntities))
+      case Right(None) =>
+        Future.successful(Left(IconikEntityNotFound(entityType.value, id)))
+      case Right(Some(entity)) =>
+        iconikApiClient
+          .getCollection(entity.id, credentials)
+          .map(
+            _.map(collection =>
+              IconikValidationReport.fromEntities(
+                List(IconikValidationService.validateEntity(entity, collection))
+              )
+            )
+          )
           .recover { case NonFatal(error) =>
             Left(
               IconikRequestFailure(
-                "Failed to validate entities with Iconik",
+                s"Failed to validate ${entityType.value} $id with Iconik",
                 Some(error)
               )
             )
@@ -45,108 +94,75 @@ class IconikValidationService(
     }
   }
 
-  private def dynamoEntities
-      : Future[Either[IconikValidationError, List[IconikEntity]]] = {
-    val projects = normalisedList(iconikStore.listProjectsAsync())(project =>
-      IconikEntity(
-        "project",
-        project.id,
-        project.title,
-        Some(project.commissionId)
-      )
-    )
-    val commissions =
-      normalisedList(iconikStore.listCommissionsAsync())(commission =>
-        IconikEntity(
-          "commission",
-          commission.id,
-          commission.title,
-          Some(commission.workingGroupId)
-        )
-      )
-    val workingGroups =
-      normalisedList(iconikStore.listWorkingGroupsAsync())(workingGroup =>
-        IconikEntity(
-          "working_group",
-          workingGroup.id,
-          workingGroup.title,
-          None
-        )
-      )
-
-    for {
-      projectResult <- projects
-      commissionResult <- commissions
-      workingGroupResult <- workingGroups
-    } yield {
-      for {
-        projects <- projectResult
-        commissions <- commissionResult
-        workingGroups <- workingGroupResult
-      } yield projects ++ commissions ++ workingGroups
-    }
-  }.recover { case NonFatal(error) =>
-    Left(
-      DynamoFailure(
-        "Failed to read Iconik entities from Dynamo",
-        Some(error)
-      )
-    )
-  }
-
-  private def normalisedList[A](
+  private def normalisedEntityIds[A](
       result: Future[Either[DynamoReadError, List[A]]]
   )(
-      toEntity: A => IconikEntity
-  ): Future[Either[IconikValidationError, List[IconikEntity]]] =
-    result.map {
-      case Left(error) =>
-        Left(DynamoFailure(error.toString))
-      case Right(entities) => Right(entities.map(toEntity))
-    }
-
-  private def validateEntities(
-      entities: List[IconikEntity]
-  ): Future[Either[IconikValidationError, List[IconikEntityValidationResult]]] =
-    entities
-      .grouped(maxConcurrentRequests)
-      .foldLeft(
-        Future.successful(
-          Right(List.empty[IconikEntityValidationResult]): Either[
-            IconikValidationError,
-            List[IconikEntityValidationResult]
-          ]
+      toEntityId: A => IconikEntityId
+  ): Future[Either[DynamoFailure, List[IconikEntityId]]] =
+    result
+      .map {
+        case Left(error)  => Left(DynamoFailure(error.toString))
+        case Right(items) => Right(items.map(toEntityId))
+      }
+      .recover { case NonFatal(error) =>
+        Left(
+          DynamoFailure(
+            "Failed to read Iconik entity IDs from Dynamo",
+            Some(error)
+          )
         )
-      ) { case (validated, batch) =>
-        validated.flatMap {
-          case Left(error) => Future.successful(Left(error))
-          case Right(previousResults) =>
-            Future
-              .traverse(batch) { entity =>
-                iconikApiClient
-                  .getCollection(entity.id, credentials)
-                  .map(
-                    _.map(
-                      IconikValidationService.validateEntity(entity, _)
-                    )
-                  )
-              }
-              .map { batchResults =>
-                sequence(batchResults).map(previousResults ++ _)
-              }
-        }
       }
 
-  private def sequence[A](
-      results: List[Either[IconikValidationError, A]]
-  ): Either[IconikValidationError, List[A]] =
-    results.foldRight(
-      Right(Nil): Either[IconikValidationError, List[A]]
-    ) {
-      case (Right(result), Right(accumulated)) =>
-        Right(result :: accumulated)
-      case (Left(error), _) => Left(error)
-      case (_, Left(error)) => Left(error)
+  private def getEntity(
+      entityType: IconikEntityType,
+      id: String
+  ): Either[IconikValidationError, Option[IconikEntity]] =
+    entityType match {
+      case IconikEntityType.Project =>
+        iconikStore
+          .getProject(id)
+          .left
+          .map(error => DynamoFailure(error.toString))
+          .map(
+            _.map(project =>
+              IconikEntity(
+                entityType.value,
+                project.id,
+                project.title,
+                Some(project.commissionId)
+              )
+            )
+          )
+      case IconikEntityType.Commission =>
+        iconikStore
+          .getCommission(id)
+          .left
+          .map(error => DynamoFailure(error.toString))
+          .map(
+            _.map(commission =>
+              IconikEntity(
+                entityType.value,
+                commission.id,
+                commission.title,
+                Some(commission.workingGroupId)
+              )
+            )
+          )
+      case IconikEntityType.WorkingGroup =>
+        iconikStore
+          .getWorkingGroup(id)
+          .left
+          .map(error => DynamoFailure(error.toString))
+          .map(
+            _.map(workingGroup =>
+              IconikEntity(
+                entityType.value,
+                workingGroup.id,
+                workingGroup.title,
+                None
+              )
+            )
+          )
     }
 }
 
