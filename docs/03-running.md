@@ -14,6 +14,10 @@ Once running, the React App can be seen [here](https://video.local.dev-gutools.c
 ```
 The app will be served at https://video.local.dev-gutools.co.uk/
 
+When using DevNginx, register the Vite dev-server mapping by running
+`dev-nginx setup-app nginx/nginx-mappings.yml` on the host. This is needed
+because `scripts/setup.sh` skips nginx setup inside a dev container.
+
 ## Running in a dev container
 Use [.devcontainer/user/devcontainer.json](../.devcontainer/user/devcontainer.json) to open a dev container, then run the start script in a new terminal inside the container.
 

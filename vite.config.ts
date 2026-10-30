@@ -53,9 +53,16 @@ export default defineConfig(({ command }) => ({
     emptyOutDir: true
   },
   server: {
-    origin: 'http://localhost:5189',
+    origin: 'https://video-vite.local.dev-gutools.co.uk',
     host: true,
-    port:5189,
+    allowedHosts: ['video-vite.local.dev-gutools.co.uk'],
+    port: 5189,
+    hmr: {
+      protocol: 'wss',
+      host: 'video-vite.local.dev-gutools.co.uk',
+      clientPort: 443,
+      path: '/hmr'
+    },
     cors: {
       origin: 'https://video.local.dev-gutools.co.uk'
     },

@@ -2,3 +2,6 @@ name: video
 mappings:
   - prefix: video
     port: 9001
+  - prefix: video-vite
+    port: 5189
+    websocket: /hmr
