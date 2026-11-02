@@ -240,4 +240,159 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
       IconikCredentials.fromSecret("""{"app-id":"test-app"}""")
     }.getMessage should include("missing token")
   }
+
+  "IconikValidationService with repair = true" should "update mismatched project title, commissionId, and workingGroupId in Dynamo" in {
+    val project = IconikProject(
+      id = "project-1",
+      title = "Stored project",
+      status = "active",
+      workingGroupId = "working-group-1",
+      commissionId = "commission-1",
+      masterPlaceholderId = Some("mp-1"),
+      createdAt = Some("2026-01-01T00:00:00")
+    )
+    val otherCommission = IconikCommission(
+      workingGroupId = "working-group-2",
+      id = "other-commission",
+      title = "Other commission"
+    )
+    val projectStore =
+      new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
+    val commissionStore = new IconikInMemoryStoreWithParentIndex[
+      IconikCommission,
+      DynamoReadError
+    ]()
+    val workingGroupStore =
+      new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
+    projectStore.upsert(project)
+    commissionStore.upsert(otherCommission)
+
+    val store =
+      new IconikStore(projectStore, commissionStore, workingGroupStore)
+    val client = new IconikCollectionClient {
+      override def getCollection(
+          entityId: String,
+          providedCredentials: IconikCredentials
+      ) = Future.successful(
+        Right(
+          Some(IconikCollection("Renamed project", Some("other-commission")))
+        )
+      )
+    }
+
+    val service = new IconikValidationService(
+      store,
+      client,
+      IconikCredentials("test-app", "test-token")
+    )
+
+    val result = Await.result(
+      service.validate(IconikEntityType.Project, "project-1", repair = true),
+      5.seconds
+    )
+
+    result.map(_.summary.repaired) shouldBe Right(1)
+    store.getProject("project-1") shouldBe Right(
+      Some(
+        project.copy(
+          title = "Renamed project",
+          commissionId = "other-commission",
+          workingGroupId = "working-group-2"
+        )
+      )
+    )
+  }
+
+  it should "prefix missing entities with [deleted] idempotently without removing them" in {
+    val commission = IconikCommission(
+      workingGroupId = "working-group-1",
+      id = "commission-1",
+      title = "Stored commission",
+      year = Some("2026")
+    )
+    val projectStore =
+      new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
+    val commissionStore = new IconikInMemoryStoreWithParentIndex[
+      IconikCommission,
+      DynamoReadError
+    ]()
+    val workingGroupStore =
+      new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
+    commissionStore.upsert(commission)
+
+    val store =
+      new IconikStore(projectStore, commissionStore, workingGroupStore)
+    val client = new IconikCollectionClient {
+      override def getCollection(
+          entityId: String,
+          providedCredentials: IconikCredentials
+      ) = Future.successful(Right(None))
+    }
+
+    val service = new IconikValidationService(
+      store,
+      client,
+      IconikCredentials("test-app", "test-token")
+    )
+
+    val firstRun = Await.result(
+      service.validate(
+        IconikEntityType.Commission,
+        "commission-1",
+        repair = true
+      ),
+      5.seconds
+    )
+    firstRun.map(_.summary.repaired) shouldBe Right(1)
+    store.getCommission("commission-1") shouldBe Right(
+      Some(commission.copy(title = "[deleted] Stored commission"))
+    )
+
+    val secondRun = Await.result(
+      service.validate(
+        IconikEntityType.Commission,
+        "commission-1",
+        repair = true
+      ),
+      5.seconds
+    )
+    secondRun.map(_.summary.repaired) shouldBe Right(0)
+    store.getCommission("commission-1") shouldBe Right(
+      Some(commission.copy(title = "[deleted] Stored commission"))
+    )
+  }
+
+  "IconikCheckerOptions.parse" should "parse CLI flags including --repair" in {
+    val options = IconikCheckerOptions.parse(
+      List(
+        "--repair",
+        "--delay-seconds",
+        "0.5",
+        "--retry-limit",
+        "3",
+        "--stage",
+        "CODE",
+        "--profile",
+        "media-service"
+      )
+    )
+    options.repair shouldBe true
+    options.delayMillis shouldBe 500L
+    options.retryLimit shouldBe 3
+    options.stageOverride shouldBe Some("CODE")
+    options.profileOverride shouldBe Some("media-service")
+  }
+
+  it should "construct IconikCheckerAwsConfig without null trait initialization errors" in {
+    val config = com.typesafe.config.ConfigFactory.parseString("""
+      stage = "CODE"
+      aws.region = "eu-west-1"
+      aws.profile = "media-service"
+    """)
+    val aws = IconikCheckerAwsConfig(config, None, None)
+    aws.stage shouldBe "CODE"
+    aws.iconikProjectTableName shouldBe "media-atom-maker-CODE-iconik-projects-table-v2"
+    aws.resolvedIconikSecretId shouldBe "arn:aws:secretsmanager:eu-west-1:563563610310:secret:media-serice/CODE/media-atom-maker/iconik-v9jlEV"
+    aws.secretsManagerClient.close()
+  }
 }

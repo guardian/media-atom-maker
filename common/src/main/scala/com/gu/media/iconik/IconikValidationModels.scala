@@ -89,19 +89,23 @@ case class IconikEntityValidationResult(
     expectedName: String,
     iconikName: Option[String],
     expectedParentId: Option[String],
-    iconikParentId: Option[String]
+    iconikParentId: Option[String],
+    repaired: Boolean = false
 ) {
-  def toJson: JsObject = Json.obj(
-    "entityType" -> entityType,
-    "id" -> id,
-    "exists" -> exists,
-    "nameMatches" -> optionalBoolean(nameMatches),
-    "parentMatches" -> optionalBoolean(parentMatches),
-    "expectedName" -> expectedName,
-    "iconikName" -> optionalString(iconikName),
-    "expectedParentId" -> optionalString(expectedParentId),
-    "iconikParentId" -> optionalString(iconikParentId)
-  )
+  def toJson: JsObject = {
+    val base = Json.obj(
+      "entityType" -> entityType,
+      "id" -> id,
+      "exists" -> exists,
+      "nameMatches" -> optionalBoolean(nameMatches),
+      "parentMatches" -> optionalBoolean(parentMatches),
+      "expectedName" -> expectedName,
+      "iconikName" -> optionalString(iconikName),
+      "expectedParentId" -> optionalString(expectedParentId),
+      "iconikParentId" -> optionalString(iconikParentId)
+    )
+    if (repaired) base + ("repaired" -> JsBoolean(true)) else base
+  }
 
   private def optionalBoolean(value: Option[Boolean]): JsValue =
     value.map(JsBoolean(_)).getOrElse(JsNull)
@@ -114,14 +118,18 @@ case class IconikValidationSummary(
     total: Int,
     missing: Int,
     nameMismatches: Int,
-    parentMismatches: Int
+    parentMismatches: Int,
+    repaired: Int = 0
 ) {
-  def toJson: JsObject = Json.obj(
-    "total" -> total,
-    "missing" -> missing,
-    "nameMismatches" -> nameMismatches,
-    "parentMismatches" -> parentMismatches
-  )
+  def toJson: JsObject = {
+    val base = Json.obj(
+      "total" -> total,
+      "missing" -> missing,
+      "nameMismatches" -> nameMismatches,
+      "parentMismatches" -> parentMismatches
+    )
+    if (repaired > 0) base + ("repaired" -> JsNumber(repaired)) else base
+  }
 }
 
 case class IconikValidationReport(
@@ -145,7 +153,8 @@ object IconikValidationReport {
         total = entities.size,
         missing = entities.count(entity => !entity.exists),
         nameMismatches = entities.count(_.nameMatches.contains(false)),
-        parentMismatches = entities.count(_.parentMatches.contains(false))
+        parentMismatches = entities.count(_.parentMatches.contains(false)),
+        repaired = entities.count(_.repaired)
       )
     )
 }
