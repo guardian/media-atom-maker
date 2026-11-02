@@ -102,7 +102,7 @@ function uploadPart(
       s3.putObject({
         Bucket: upload.metadata.bucket,
         Key: part.key,
-        Metadata: { original: file.name },
+        Metadata: { original: encodeURIComponent(file.name) },
         // @ts-expect-error TS(2322): Type 'ArrayBuffer' is not assignable to type 'Stre... Remove this comment to see the full error message
         Body: body
       })
