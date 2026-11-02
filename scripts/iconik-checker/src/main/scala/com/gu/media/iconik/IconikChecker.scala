@@ -20,23 +20,55 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
 
+import java.io.BufferedWriter
+import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.{Files, Path, Paths}
+import scala.annotation.tailrec
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 import scala.util.Using
 
 object IconikChecker {
+  private val ansiEnabled =
+    !sys.env.contains("NO_COLOR") && !sys.env.get("TERM").contains("dumb")
+
   private val usage =
-    "usage: iconikChecker/runMain com.gu.media.iconik.IconikChecker CODE|PROD <secret-id> [--repair]"
+    "usage: iconikChecker/runMain com.gu.media.iconik.IconikChecker CODE|PROD <secret-id> [--repair] [--output <file>]"
 
-  case class Options(stage: String, secretId: String, repair: Boolean)
+  case class Options(
+      stage: String,
+      secretId: String,
+      repair: Boolean,
+      output: Path
+  )
 
-  def parseOptions(args: List[String]): Options = args match {
-    case stage :: secretId :: flags
-        if Set("CODE", "PROD").contains(stage) &&
-          secretId.nonEmpty &&
-          (flags.isEmpty || flags == List("--repair")) =>
-      Options(stage, secretId, flags.nonEmpty)
-    case _ => throw new IllegalArgumentException(usage)
+  def parseOptions(args: List[String]): Options = {
+    @tailrec
+    def parseFlags(flags: List[String], options: Options): Options =
+      flags match {
+        case Nil => options
+        case "--repair" :: rest =>
+          parseFlags(rest, options.copy(repair = true))
+        case "--output" :: path :: rest
+            if path.nonEmpty && !path.startsWith("--") =>
+          parseFlags(rest, options.copy(output = Paths.get(path)))
+        case _ => throw new IllegalArgumentException(usage)
+      }
+
+    args match {
+      case stage :: secretId :: flags
+          if Set("CODE", "PROD").contains(stage) && secretId.nonEmpty =>
+        parseFlags(
+          flags,
+          Options(
+            stage,
+            secretId,
+            repair = false,
+            Paths.get(s"iconik-checker-$stage.jsonl")
+          )
+        )
+      case _ => throw new IllegalArgumentException(usage)
+    }
   }
 
   def main(args: Array[String]): Unit = {
@@ -94,17 +126,59 @@ object IconikChecker {
         Console.err.println(
           s"Checking ${options.stage} Iconik tables; repair=${options.repair}"
         )
-        check(
+        checkToFile(
           service,
           options.repair,
-          println,
+          options.output,
           () => Thread.sleep(1000)
+        )
+        Console.err.println(
+          s"Reports written to ${options.output.toAbsolutePath} and its defect files"
         )
       }.get
     } finally {
       Await.result(system.terminate(), 30.seconds)
     }
   }
+
+  private[iconik] def checkToFile(
+      service: IconikValidationService,
+      repair: Boolean,
+      output: Path,
+      pause: () => Unit,
+      ansi: Boolean = ansiEnabled
+  ): Unit =
+    Using.Manager { use =>
+      val writer = use(Files.newBufferedWriter(output, UTF_8))
+      def defectWriter(defect: String): BufferedWriter = {
+        val stem = output.getFileName.toString.stripSuffix(".jsonl")
+        val path = output.resolveSibling(s"$stem.$defect.jsonl")
+        use(Files.newBufferedWriter(path, UTF_8))
+      }
+      val missing = defectWriter("missing")
+      val nameMismatches = defectWriter("name-mismatches")
+      val parentMismatches = defectWriter("parent-mismatches")
+
+      def write(destination: BufferedWriter, line: String): Unit = {
+        destination.write(line)
+        destination.newLine()
+        destination.flush()
+      }
+
+      check(
+        service,
+        repair,
+        report => {
+          val line = Json.stringify(report.toJson)
+          write(writer, line)
+          if (report.summary.missing > 0) write(missing, line)
+          if (report.summary.nameMismatches > 0) write(nameMismatches, line)
+          if (report.summary.parentMismatches > 0) write(parentMismatches, line)
+        },
+        pause,
+        ansi
+      )
+    }.get
 
   private[iconik] def awsConfig(
       options: Options,
@@ -130,35 +204,55 @@ object IconikChecker {
   private[iconik] def check(
       service: IconikValidationService,
       repair: Boolean,
-      emit: String => Unit,
-      pause: () => Unit
+      emit: IconikValidationReport => Unit,
+      pause: () => Unit,
+      ansi: Boolean = ansiEnabled
   ): Unit = {
     val entityIds = Await
       .result(service.listEntityIds(), 10.minutes)
       .fold(error => throw new IllegalStateException(error.message), identity)
+    val total = entityIds.size
 
-    entityIds.foreach { entity =>
-      val entityType = IconikEntityType
-        .fromString(entity.entityType)
-        .getOrElse(
-          throw new IllegalArgumentException(
-            s"Unknown Iconik entity type: ${entity.entityType}"
-          )
-        )
-      Console.err.println(s"checking ${entity.entityType} ${entity.id}")
-      val report = Await
-        .result(service.validate(entityType, entity.id, repair), 2.minutes)
-        .fold(
-          error =>
-            throw new IllegalStateException(
-              error.message,
-              error.cause.orNull
-            ),
-          identity
-        )
-      emit(Json.stringify(report.toJson))
-      pause()
+    def showProgress(completed: Int): Unit = {
+      val percent =
+        if (total == 0) 100 else completed.toLong * 100 / total
+      val filled = (percent / 5).toInt
+      val bar = "#" * filled + "-" * (20 - filled)
+      val progress = s"[$bar] $completed/$total ($percent%)"
+      val line =
+        if (ansi) {
+          val colour = if (percent == 100) "\u001b[1;32m" else "\u001b[1;36m"
+          s"\r\u001b[2K$colour\u001b[7m ICONIK \u001b[27m $progress\u001b[0m"
+        } else s"\rICONIK $progress"
+      Console.err.print(line)
+      Console.err.flush()
     }
-    Console.err.println(s"Checked ${entityIds.size} Iconik objects.")
+
+    showProgress(0)
+    try {
+      entityIds.zipWithIndex.foreach { case (entity, index) =>
+        val entityType = IconikEntityType
+          .fromString(entity.entityType)
+          .getOrElse(
+            throw new IllegalArgumentException(
+              s"Unknown Iconik entity type: ${entity.entityType}"
+            )
+          )
+        val report = Await
+          .result(service.validate(entityType, entity.id, repair), 2.minutes)
+          .fold(
+            error =>
+              throw new IllegalStateException(
+                error.message,
+                error.cause.orNull
+              ),
+            identity
+          )
+        emit(report)
+        showProgress(index + 1)
+        pause()
+      }
+    } finally Console.err.println()
+    Console.err.println(s"Checked $total Iconik objects.")
   }
 }
