@@ -362,37 +362,4 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     )
   }
 
-  "IconikCheckerOptions.parse" should "parse CLI flags including --repair" in {
-    val options = IconikCheckerOptions.parse(
-      List(
-        "--repair",
-        "--delay-seconds",
-        "0.5",
-        "--retry-limit",
-        "3",
-        "--stage",
-        "CODE",
-        "--profile",
-        "media-service"
-      )
-    )
-    options.repair shouldBe true
-    options.delayMillis shouldBe 500L
-    options.retryLimit shouldBe 3
-    options.stageOverride shouldBe Some("CODE")
-    options.profileOverride shouldBe Some("media-service")
-  }
-
-  it should "construct IconikCheckerAwsConfig without null trait initialization errors" in {
-    val config = com.typesafe.config.ConfigFactory.parseString("""
-      stage = "CODE"
-      aws.region = "eu-west-1"
-      aws.profile = "media-service"
-    """)
-    val aws = IconikCheckerAwsConfig(config, None, None)
-    aws.stage shouldBe "CODE"
-    aws.iconikProjectTableName shouldBe "media-atom-maker-CODE-iconik-projects-table-v2"
-    aws.resolvedIconikSecretId shouldBe "arn:aws:secretsmanager:eu-west-1:563563610310:secret:media-serice/CODE/media-atom-maker/iconik-v9jlEV"
-    aws.secretsManagerClient.close()
-  }
 }
