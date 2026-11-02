@@ -3,7 +3,7 @@
 const fs = require('fs');
 
 const ArgumentParser = require('argparse').ArgumentParser;
-const parseHocon = require('hoconjs');
+const parseHocon = require('hoconjs/build/hoconjs');
 const chalk = require('chalk');
 
 const HMACRequest = require('./hmac-request');
@@ -102,12 +102,10 @@ Promise.all([
   const hmacRequest = new HMACRequest({secret: secret});
 
   hmacRequest[method](url, payloadData)
-    .then(response => console.log(JSON.stringify(response)))
+    .then(response => console.log(response))
     .catch(err => {
-      console.error(chalk.red(`ERROR! ${err.status} (${err.statusText}) ${method.toUpperCase()} ${url}`));
-      process.exitCode = 1;
+      console.log(chalk.red(`ERROR! ${err.status} (${err.statusText}) ${method.toUpperCase()} ${url}`));
     });
 }).catch(err => {
-  console.error(chalk.red(err));
-  process.exitCode = 1;
+  console.log(chalk.red(err));
 });
