@@ -1,26 +1,17 @@
 import React from 'react';
+import type FieldNotification from '../../constants/FieldNotification';
 
 type Props = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldValue: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editable: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldName: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  maxLength: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  notification: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  placeholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  displayPlaceholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hasError: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  input: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateField: any;
+  fieldValue: string;
+  editable?: boolean;
+  fieldName: string;
+  maxLength?: number;
+  notification: FieldNotification | null;
+  placeholder: string;
+  displayPlaceholder: (placeholder: string, fieldValue: string) => boolean;
+  hasError: (props: Pick<Props, 'notification'>) => boolean | null;
+  input?: React.InputHTMLAttributes<HTMLInputElement>;
+  onUpdateField: (value: string) => void | Promise<unknown>;
 };
 
 export default class TextInput extends React.Component<Props> {
@@ -67,7 +58,7 @@ export default class TextInput extends React.Component<Props> {
         <label className="form__label">{this.props.fieldName}</label>
         <input
           {...this.props.input}
-          maxLength={this.props.maxLength || ''}
+          maxLength={this.props.maxLength || undefined}
           className={'form__field ' + (hasError ? 'form__field--error' : '')}
           type="text"
           value={this.props.fieldValue}
@@ -77,7 +68,7 @@ export default class TextInput extends React.Component<Props> {
         />
         {hasError ? (
           <p className="form__message form__message--error">
-            {this.props.notification.message}
+            {this.props.notification?.message}
           </p>
         ) : (
           ''
