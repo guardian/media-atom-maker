@@ -261,6 +261,14 @@ lazy val integrationTests = (project in file("integration-tests"))
     Test / parallelExecution := false
   )
 
+lazy val iconikChecker = (project in file("scripts/iconik-checker"))
+  .dependsOn(common)
+  .settings(
+    commonSettings,
+    name := "iconik-checker",
+    libraryDependencies += "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+  )
+
 lazy val expirer = (project in file("expirer"))
   .dependsOn(common % "compile->compile;test->test")
   .enablePlugins(JavaAppPackaging)
@@ -283,7 +291,7 @@ lazy val scheduler = (project in file("scheduler"))
   )
 
 lazy val root = (project in file("root"))
-  .aggregate(common, app, uploader, expirer, scheduler)
+  .aggregate(common, app, uploader, expirer, scheduler, iconikChecker)
 
 addCommandAlias(
   "ciCommands",
