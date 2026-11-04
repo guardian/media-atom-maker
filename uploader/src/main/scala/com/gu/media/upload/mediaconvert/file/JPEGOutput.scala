@@ -1,7 +1,7 @@
 package com.gu.media.upload.mediaconvert.file
 
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.OutputDefinition
+import com.gu.media.upload.mediaconvert.{OutputDefinition, VideoCodecWrapper}
 import software.amazon.awssdk.services.mediaconvert.model._
 
 object JPEGOutput {
@@ -35,6 +35,7 @@ object JPEGOutput {
             )
             .build()
         )
-        .build()
+        .build(),
+    codec = VideoCodecWrapper(VideoCodec.FRAME_CAPTURE)
   )
 }

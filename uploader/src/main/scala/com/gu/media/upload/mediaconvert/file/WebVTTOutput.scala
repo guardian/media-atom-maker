@@ -2,7 +2,11 @@ package com.gu.media.upload.mediaconvert.file
 
 import com.gu.contentatom.thrift.atom.media.AssetType
 import com.gu.media.model.VideoSource
-import com.gu.media.upload.mediaconvert.{OutputDefinition, SelectorNames}
+import com.gu.media.upload.mediaconvert.{
+  CaptionsCodecWrapper,
+  OutputDefinition,
+  SelectorNames
+}
 import software.amazon.awssdk.services.mediaconvert.model._
 
 object WebVTTOutput {
@@ -35,6 +39,7 @@ object WebVTTOutput {
             .build()
         )
         .extension("vtt") // explicitly setting the extension avoids an AWS bug where the extension isn't included in the media convert complete event
-        .build()
+        .build(),
+    codec = CaptionsCodecWrapper(CaptionDestinationType.WEBVTT)
   )
 }

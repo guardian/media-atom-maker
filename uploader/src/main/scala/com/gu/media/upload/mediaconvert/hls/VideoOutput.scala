@@ -3,12 +3,15 @@ package com.gu.media.upload.mediaconvert.hls
 import com.gu.media.model.VideoSource
 import com.gu.media.upload.mediaconvert.SharedCodecSettings.h264Settings
 import com.gu.media.upload.mediaconvert.{EncodingConfig, OutputDefinition}
+import com.gu.media.upload.mediaconvert.VideoCodecWrapper
+
 import software.amazon.awssdk.services.mediaconvert.model._
 
 object VideoOutput {
   def apply(config: EncodingConfig): OutputDefinition =
     OutputDefinition(
       mimeType = Some(VideoSource.mimeTypeM3u8),
+      codec = VideoCodecWrapper(config.codecSettings.codec),
       assetType =
         None, // Not currently used as an asset, as the m3u8 playlist which combines this and subtitles is used instead
       output = () => {

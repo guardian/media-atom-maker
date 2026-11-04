@@ -10,6 +10,26 @@ object SharedCodecSettings {
   /** Migrated from Elastic Transcoder */
   val bitrate: BitrateSetting = BitrateSetting(4_800_000, 2_400_000);
 
+  def av1Settings(qualityLevel: Int = 8): Av1Settings =
+    Av1Settings
+      .builder()
+      .maxBitrate(bitrate.max)
+      .rateControlMode(Av1RateControlMode.QVBR)
+      .qvbrSettings(
+        Av1QvbrSettings
+          .builder()
+          .qvbrQualityLevel(qualityLevel) // 1-10, 10 is best quality
+          .qvbrQualityLevelFineTune(
+            0
+          )
+          .build()
+      )
+      .bitDepth(Av1BitDepth.BIT_10)
+      .adaptiveQuantization(Av1AdaptiveQuantization.HIGH)
+      .spatialAdaptiveQuantization(Av1SpatialAdaptiveQuantization.ENABLED)
+      .framerateControl(Av1FramerateControl.INITIALIZE_FROM_SOURCE)
+      .build()
+
   def h264Settings(qualityLevel: Int = 8): H264Settings =
     H264Settings
       .builder()
