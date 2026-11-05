@@ -22,6 +22,15 @@
       "node_modules/(?!panda-session)"
     ],
     "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "customExportConditions": [
+        "node",
+        "node-addons"
+      ]
+    },
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ],
     "preset": "ts-jest/presets/js-with-ts"
   },
   "devDependencies": {
