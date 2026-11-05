@@ -13,20 +13,29 @@ import play.api.mvc.{
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
+object CORSable {
+  def allowedOrigin(
+      origin: Option[String],
+      allowlist: Seq[String]
+  ): Option[String] =
+    origin.filter(o => allowlist.contains(o))
+}
+
 case class CORSable[A](origins: String*)(action: Action[A]) extends Action[A] {
 
   def apply(request: Request[A]): Future[Result] = {
-    val headers = request.headers.get("Origin").map { origin =>
-      if (origins.contains(origin)) {
+    val headers = CORSable
+      .allowedOrigin(request.headers.get("Origin"), origins)
+      .toList
+      .flatMap(origin =>
         List(
           "Access-Control-Allow-Origin" -> origin,
           "Access-Control-Allow-Credentials" -> "true"
         )
-      } else {
-        Nil
-      }
-    }
-    action(request).map(_.withHeaders(headers.getOrElse(Nil): _*))
+      )
+    action(request).map(
+      _.withHeaders(headers: _*).withHeaders("Vary" -> "Origin")
+    )
   }
 
   lazy val parser: BodyParser[A] = action.parser
