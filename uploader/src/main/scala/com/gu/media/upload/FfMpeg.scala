@@ -1,9 +1,20 @@
 package com.gu.media.upload
 
 import com.gu.media.logging.Logging
+
 import java.nio.file.Path
+import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.{
+  Await,
+  ExecutionContext,
+  Future,
+  TimeoutException,
+  blocking
+}
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.sys.process.{Process, ProcessLogger, stdout}
 import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 
 class BasicStdErrLogger extends Logging {
@@ -21,6 +32,7 @@ class BasicStdErrLogger extends Logging {
 }
 object FfMpeg extends Logging {
   private val AWSLambdaFfmpegPath = "/var/task/bin/ffmpeg"
+  private val AudioDetectionTimeout: Duration = 2.minutes
 
   private case class FfMpegSubprocessCrashedException(
       exitCode: Int,
@@ -60,17 +72,33 @@ object FfMpeg extends Logging {
 
     val cmd =
       s"${ffmpegPath} -seekable 1 -i \"$video\" -filter:a volumedetect -f null /dev/null"
-    val exitCode = Process(cmd, cwd = None).!(
+    val process = Process(cmd, cwd = None).run(
       ProcessLogger(stdout.append(_), ffMpegStdErrLogger.append)
     )
+
+    val maybeExitCode =
+      Try {
+        Await.result(
+          Future(blocking(process.exitValue())),
+          AudioDetectionTimeout
+        )
+      } match {
+        case Success(exitCode) => Some(exitCode)
+        case Failure(exception) =>
+          log.error(
+            s"FfMpeg audio detection failed with exception: ${exception.getMessage}"
+          )
+          process.destroy()
+          None
+      }
 
     def findRegexMatch(regex: Regex, output: String) = {
       regex
         .findFirstMatchIn(output)
     }
 
-    exitCode match {
-      case 0 =>
+    maybeExitCode match {
+      case Some(0) =>
         val output = ffMpegStdErrLogger.getOutput;
 
         val maxVolumeRegex = """max_volume:\s*([-\d.]+)\s*dB""".r
@@ -91,7 +119,9 @@ object FfMpeg extends Logging {
           case (None, _, _) =>
             false /* No volume reading and no audio/video streams detected. Default to false so no empty AudioOutput is added to the HLS group */
         }
-      case _ =>
+      case None =>
+        true /* Timed out, assume the video has audio */
+      case Some(_) =>
         log.error("FfMpeg audio detection failed")
         /*
          * Default to false on detection failure (rather than throwing).
