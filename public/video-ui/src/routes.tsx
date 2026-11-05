@@ -57,6 +57,7 @@ export const routes = (
       <Route path="/create" component={CreateWrapper} onEnter={sendTelemetry} />
       <Route path="/help" component={Help} onEnter={sendTelemetry} />
       <Route path="/training" component={Training} onEnter={sendTelemetry} />
+      <Route path="/backfill" component={Search} onEnter={sendTelemetry} />
     </Route>
   </Router>
 );
