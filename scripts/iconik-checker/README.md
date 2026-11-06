@@ -54,11 +54,12 @@ AWS_PROFILE=media-service sbt 'iconikChecker/runMain com.gu.media.iconik.IconikC
 The apply runner validates every plan line and checks the requested stage and
 table before making any writes. It calls DynamoDB `UpdateItem` via the AWS SDK
 once per selected entity, updating only the listed fields. Each request is
-conditional on the old values still matching DynamoDB, and the runner stops on
-the first failed update. A failed run can therefore have applied earlier lines;
-use small ID selections for canaries. Applying does not call Iconik or need the
-Iconik secret. It requires `dynamodb:UpdateItem` on the three stage-specific
-Iconik tables.
+conditional on the old values still matching DynamoDB. If an update fails (for
+example, a conditional check mismatch because the row changed since the plan
+was generated), the runner writes the planned change with an `error` field to
+`<plan-stem>.failed.jsonl` and continues with the remaining entities. Applying
+does not call Iconik or need the Iconik secret. It requires
+`dynamodb:UpdateItem` on the three stage-specific Iconik tables.
 
 Analysis needs `dynamodb:Scan` and `dynamodb:GetItem` on those tables, plus
 `secretsmanager:GetSecretValue` on the supplied secret (and `kms:Decrypt` if

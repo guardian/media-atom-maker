@@ -33,6 +33,7 @@ import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.util.Using
+import scala.util.control.NonFatal
 
 object IconikChecker {
   private val ansiEnabled =
@@ -492,13 +493,33 @@ object IconikChecker {
       if (options.applyAll) changes
       else changes.filter(change => options.ids.contains(change.selector))
 
-    selected.zipWithIndex.foreach { case (change, index) =>
+    val failedPath = defectPath(options.plan, "failed")
+    Using.resource(Files.newBufferedWriter(failedPath, UTF_8)) { failedWriter =>
+      var appliedCount = 0
+      var failedCount = 0
+      selected.zipWithIndex.foreach { case (change, index) =>
+        Console.err.println(
+          s"Applying ${change.selector} (${index + 1}/${selected.size})"
+        )
+        try {
+          updateItem(updateRequest(change))
+          appliedCount += 1
+        } catch {
+          case NonFatal(error) =>
+            failedCount += 1
+            val message = Option(error.getMessage).getOrElse(error.toString)
+            Console.err.println(s"Failed applying ${change.selector}: $message")
+            failedWriter.write(
+              Json.stringify(change.toJson + ("error" -> JsString(message)))
+            )
+            failedWriter.newLine()
+            failedWriter.flush()
+        }
+      }
       Console.err.println(
-        s"Applying ${change.selector} (${index + 1}/${selected.size})"
+        s"Applied $appliedCount repair(s), $failedCount failed."
       )
-      updateItem(updateRequest(change))
     }
-    Console.err.println(s"Applied ${selected.size} repair(s).")
   }
 
   private def parsePlannedChange(
