@@ -17,3 +17,4 @@ metals.sbt
 .java-version
 **/manifest.json
 .vite
+/iconik-checker-*.jsonl

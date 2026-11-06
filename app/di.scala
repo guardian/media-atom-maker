@@ -10,11 +10,6 @@ import com.gu.media.aws.{AwsCredentials, S3Access, SecretsManagerAccess}
 import com.gu.media.config.{Code, Stage}
 import com.gu.media.telemetry.{Telemetry, HMACClient}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
-import com.gu.media.iconik.{
-  IconikApiClient,
-  IconikCredentials,
-  IconikValidationService
-}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import controllers._
 import data._
@@ -111,11 +106,6 @@ class MediaAtomMaker(context: Context)
   )
 
   private val aws = new AWSConfig(config, credentials)
-  private val iconikDynamoDbAsyncClient = aws.dynamoDbAsyncSdkV2
-  applicationLifecycle.addStopHook { () =>
-    iconikDynamoDbAsyncClient.close()
-    Future.successful(())
-  }
 
   private val permissionsStage = aws.stage match {
     case "PROD" => "PROD"
@@ -145,32 +135,6 @@ class MediaAtomMaker(context: Context)
   private val capi = new Capi(config)
 
   private val stores = new DataStores(aws, capi)
-  private val iconikCredentials = {
-    val secretArn = aws
-      .getString("aws.secretsmanager.iconikCredentials")
-      .getOrElse(
-        throw new IllegalStateException(
-          "aws.secretsmanager.iconikCredentials must contain the Secrets Manager ARN"
-        )
-      )
-    val secretValue = aws.getSecret(secretArn) match {
-      case Success(value) if value != null && value.nonEmpty => value
-      case Success(_) =>
-        throw new IllegalStateException("Iconik credentials secret is empty")
-      case Failure(error) =>
-        throw new IllegalStateException(
-          "Failed to retrieve Iconik credentials from Secrets Manager",
-          error
-        )
-    }
-
-    IconikCredentials.fromSecret(secretValue)
-  }
-  private val iconikValidationService = new IconikValidationService(
-    stores.iconikDataStore,
-    new IconikApiClient(wsClient)(controllerComponents.executionContext),
-    iconikCredentials
-  )(controllerComponents.executionContext)
 
   private val reindexer = buildReindexer()
   private lazy val gridApiUrl = configuration.get[String]("grid.api")
@@ -250,11 +214,6 @@ class MediaAtomMaker(context: Context)
     stores,
     controllerComponents
   )
-  private val iconikValidationController = new IconikValidationController(
-    hmacAuthActions,
-    iconikValidationService,
-    controllerComponents
-  )
 
   private val videoApp = new VideoUIApp(
     hmacAuthActions,
@@ -275,7 +234,6 @@ class MediaAtomMaker(context: Context)
     api,
     plutoController,
     iconikController,
-    iconikValidationController,
     uploads,
     youTubeController,
     reindexer,

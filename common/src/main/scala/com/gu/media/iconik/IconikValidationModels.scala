@@ -53,6 +53,22 @@ case class IconikEntity(
     parentId: Option[String]
 )
 
+case class IconikEntityId(entityType: String, id: String)
+
+sealed abstract class IconikEntityType(val value: String)
+
+object IconikEntityType {
+  case object Project extends IconikEntityType("project")
+  case object Commission extends IconikEntityType("commission")
+  case object WorkingGroup extends IconikEntityType("working_group")
+
+  val values: List[IconikEntityType] =
+    List(Project, Commission, WorkingGroup)
+
+  def fromString(value: String): Option[IconikEntityType] =
+    values.find(_.value == value)
+}
+
 case class IconikCollection(title: String, parentId: Option[String])
 
 object IconikCollection {
@@ -75,17 +91,18 @@ case class IconikEntityValidationResult(
     expectedParentId: Option[String],
     iconikParentId: Option[String]
 ) {
-  def toJson: JsObject = Json.obj(
-    "entityType" -> entityType,
-    "id" -> id,
-    "exists" -> exists,
-    "nameMatches" -> optionalBoolean(nameMatches),
-    "parentMatches" -> optionalBoolean(parentMatches),
-    "expectedName" -> expectedName,
-    "iconikName" -> optionalString(iconikName),
-    "expectedParentId" -> optionalString(expectedParentId),
-    "iconikParentId" -> optionalString(iconikParentId)
-  )
+  def toJson: JsObject =
+    Json.obj(
+      "entityType" -> entityType,
+      "id" -> id,
+      "exists" -> exists,
+      "nameMatches" -> optionalBoolean(nameMatches),
+      "parentMatches" -> optionalBoolean(parentMatches),
+      "expectedName" -> expectedName,
+      "iconikName" -> optionalString(iconikName),
+      "expectedParentId" -> optionalString(expectedParentId),
+      "iconikParentId" -> optionalString(iconikParentId)
+    )
 
   private def optionalBoolean(value: Option[Boolean]): JsValue =
     value.map(JsBoolean(_)).getOrElse(JsNull)
@@ -94,18 +111,37 @@ case class IconikEntityValidationResult(
     value.map(JsString(_)).getOrElse(JsNull)
 }
 
+sealed trait IconikRepairDecision
+
+case class IconikRepairPlan(
+    entityType: String,
+    id: String,
+    before: JsObject,
+    after: JsObject
+) extends IconikRepairDecision
+
+case class IconikUnrepairable(
+    entityType: String,
+    id: String,
+    reason: String
+) extends IconikRepairDecision {
+  def toJson(report: IconikValidationReport): JsObject =
+    report.toJson + ("reason" -> JsString(reason))
+}
+
 case class IconikValidationSummary(
     total: Int,
     missing: Int,
     nameMismatches: Int,
     parentMismatches: Int
 ) {
-  def toJson: JsObject = Json.obj(
-    "total" -> total,
-    "missing" -> missing,
-    "nameMismatches" -> nameMismatches,
-    "parentMismatches" -> parentMismatches
-  )
+  def toJson: JsObject =
+    Json.obj(
+      "total" -> total,
+      "missing" -> missing,
+      "nameMismatches" -> nameMismatches,
+      "parentMismatches" -> parentMismatches
+    )
 }
 
 case class IconikValidationReport(
@@ -148,3 +184,9 @@ case class IconikRequestFailure(
     message: String,
     cause: Option[Throwable] = None
 ) extends IconikValidationError
+
+case class IconikEntityNotFound(entityType: String, id: String)
+    extends IconikValidationError {
+  override val message: String = s"No $entityType found with ID $id"
+  override val cause: Option[Throwable] = None
+}
