@@ -39,7 +39,7 @@ GET            /api/iconik/validate                              controllers.Ico
 GET            /videos/:id/open-in-iconik                       controllers.IconikController.openInIconik(id)
 
 # endpoint used by workflow
-OPTIONS        /api/workflow/*url                               controllers.Api.allowCORSAccess(methods = "PUT, POST, DELETE", url: String)
+OPTIONS        /api/workflow/*url                               controllers.Api.allowWorkflowCORSAccess(methods = "POST", url: String)
 POST           /api/workflow/atoms                              controllers.Api.createWorkflowMediaAtom
 
 # user uploaded videos

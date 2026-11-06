@@ -40,7 +40,7 @@ class Api(
 
   import authActions.{APIAuthAction, APIHMACAuthAction}
 
-  def allowCORSAccess(methods: String, args: Any*) =
+  def allowWorkflowCORSAccess(methods: String, args: Any*) =
     CORSable(awsConfig.workflowUrl) {
       Action { implicit req =>
         val requestedHeaders = req.headers("Access-Control-Request-Headers")
@@ -68,22 +68,19 @@ class Api(
     Ok(Json.toJson(atoms))
   }
 
-  def getMediaAtom(id: String) = APIAuthAction { req =>
-    try {
-      val maybeCorsValue =
-        req.headers.get("Origin").filter(_.endsWith("gutools.co.uk"))
-      val atom = getPreviewAtom(id)
-      val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
-      val mediaAtom =
-        MediaAtom.fromThrift(atom, publishSettings)
-      Ok(Json.toJson(mediaAtom)).withHeaders(
-        "Access-Control-Allow-Origin" -> maybeCorsValue.getOrElse(""),
-        "Access-Control-Allow-Credentials" -> maybeCorsValue.isDefined.toString
-      )
-    } catch {
-      commandExceptionAsResult
+  def getMediaAtom(id: String) =
+    CORSable(awsConfig.corsAllowedOrigins("getMediaAtom"): _*) {
+      APIAuthAction { req =>
+        try {
+          val atom = getPreviewAtom(id)
+          val publishSettings = stores.mediaAtomPublishSettingsStore.get(id)
+          val mediaAtom = MediaAtom.fromThrift(atom, publishSettings)
+          Ok(Json.toJson(mediaAtom))
+        } catch {
+          commandExceptionAsResult
+        }
+      }
     }
-  }
 
   def getCropOptionsForGrid = APIAuthAction { req =>
     Ok(Json.toJson(gridAPIScheduler.getCropOptions))
