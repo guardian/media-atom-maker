@@ -1,6 +1,7 @@
 package com.gu.media.iconik
 
 import org.scanamo.DynamoReadError
+import play.api.libs.json.{JsObject, Json}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -55,9 +56,32 @@ class IconikValidationService(
 
   def validate(
       entityType: IconikEntityType,
-      id: String,
-      repair: Boolean = false
+      id: String
   ): Future[Either[IconikValidationError, IconikValidationReport]] = {
+    validateInternal(entityType, id, createPlan = false).map(_.map(_._1))
+  }
+
+  def validateWithPlan(
+      entityType: IconikEntityType,
+      id: String
+  ): Future[
+    Either[
+      IconikValidationError,
+      (IconikValidationReport, Option[IconikRepairDecision])
+    ]
+  ] =
+    validateInternal(entityType, id, createPlan = true)
+
+  private def validateInternal(
+      entityType: IconikEntityType,
+      id: String,
+      createPlan: Boolean
+  ): Future[
+    Either[
+      IconikValidationError,
+      (IconikValidationReport, Option[IconikRepairDecision])
+    ]
+  ] = {
     val entityResult =
       try getEntity(entityType, id)
       catch {
@@ -77,36 +101,175 @@ class IconikValidationService(
       case Right(Some(storedEntity)) =>
         iconikApiClient
           .getCollection(storedEntity.entity.id, credentials)
-          .map(
-            _.flatMap { collection =>
+          .map { result =>
+            result.flatMap { collection =>
               val validationResult =
                 IconikValidationService.validateEntity(
                   storedEntity.entity,
                   collection
                 )
-              if (repair) {
-                repairEntity(storedEntity, collection).map(wasRepaired =>
-                  IconikValidationReport.fromEntities(
-                    List(validationResult.copy(repaired = wasRepaired))
+              val repairDecision: Either[
+                DynamoFailure,
+                Option[IconikRepairDecision]
+              ] =
+                if (createPlan) planRepair(storedEntity, collection)
+                else Right(None)
+              repairDecision match {
+                case Left(error) => Left(error: IconikValidationError)
+                case Right(decision) =>
+                  Right(
+                    (
+                      IconikValidationReport.fromEntities(
+                        List(validationResult)
+                      ),
+                      decision
+                    )
                   )
-                )
-              } else {
-                Right(
-                  IconikValidationReport.fromEntities(List(validationResult))
-                )
               }
             }
-          )
+          }
           .recover { case NonFatal(error) =>
             Left(
               IconikRequestFailure(
                 s"Failed to validate ${entityType.value} $id with Iconik",
                 Some(error)
               )
-            )
+            ): Either[
+              IconikValidationError,
+              (IconikValidationReport, Option[IconikRepairDecision])
+            ]
           }
     }
   }
+
+  private def planRepair(
+      storedEntity: StoredIconikEntity,
+      collection: Option[IconikCollection]
+  ): Either[DynamoFailure, Option[IconikRepairDecision]] =
+    try {
+      def itemJson(entity: StoredIconikEntity): JsObject =
+        entity match {
+          case StoredProject(project) =>
+            Json.toJson(project)(IconikProject.format).as[JsObject]
+          case StoredCommission(commission) =>
+            Json.toJson(commission)(IconikCommission.format).as[JsObject]
+          case StoredWorkingGroup(workingGroup) =>
+            Json.toJson(workingGroup)(IconikWorkingGroup.format).as[JsObject]
+        }
+
+      def updatedOrUnrepairable
+          : Either[IconikUnrepairable, StoredIconikEntity] =
+        storedEntity match {
+          case StoredProject(project) =>
+            collection match {
+              case None =>
+                Right(
+                  StoredProject(
+                    project.copy(
+                      title =
+                        IconikValidationService.markDeletedTitle(project.title)
+                    )
+                  )
+                )
+              case Some(col) =>
+                col.parentId match {
+                  case None if col.title == project.title =>
+                    Right(StoredProject(project))
+                  case None =>
+                    Right(StoredProject(project.copy(title = col.title)))
+                  case Some(updatedCommissionId)
+                      if updatedCommissionId == project.commissionId =>
+                    Right(StoredProject(project.copy(title = col.title)))
+                  case Some(updatedCommissionId) =>
+                    iconikStore.getCommission(updatedCommissionId) match {
+                      case Right(Some(commission)) =>
+                        Right(
+                          StoredProject(
+                            project.copy(
+                              title = col.title,
+                              commissionId = updatedCommissionId,
+                              workingGroupId = commission.workingGroupId
+                            )
+                          )
+                        )
+                      case Right(None) =>
+                        Left(
+                          IconikUnrepairable(
+                            storedEntity.entity.entityType,
+                            storedEntity.entity.id,
+                            s"Iconik commission $updatedCommissionId is missing from Dynamo"
+                          )
+                        )
+                      case Left(error) =>
+                        throw new IllegalStateException(
+                          s"Failed to read Iconik commission $updatedCommissionId from Dynamo: $error"
+                        )
+                    }
+                }
+            }
+
+          case StoredCommission(commission) =>
+            Right(
+              StoredCommission(
+                collection match {
+                  case None =>
+                    commission.copy(
+                      title = IconikValidationService.markDeletedTitle(
+                        commission.title
+                      )
+                    )
+                  case Some(col) =>
+                    commission.copy(
+                      title = col.title,
+                      workingGroupId =
+                        col.parentId.getOrElse(commission.workingGroupId)
+                    )
+                }
+              )
+            )
+
+          case StoredWorkingGroup(workingGroup) =>
+            Right(
+              StoredWorkingGroup(
+                collection match {
+                  case None =>
+                    workingGroup.copy(
+                      title = IconikValidationService.markDeletedTitle(
+                        workingGroup.title
+                      )
+                    )
+                  case Some(col) =>
+                    workingGroup.copy(title = col.title)
+                }
+              )
+            )
+        }
+
+      updatedOrUnrepairable match {
+        case Left(unrepairable) => Right(Some(unrepairable))
+        case Right(updatedEntity) if updatedEntity == storedEntity =>
+          Right(None)
+        case Right(updatedEntity) =>
+          Right(
+            Some(
+              IconikRepairPlan(
+                storedEntity.entity.entityType,
+                storedEntity.entity.id,
+                itemJson(storedEntity),
+                itemJson(updatedEntity)
+              )
+            )
+          )
+      }
+    } catch {
+      case NonFatal(error) =>
+        Left(
+          DynamoFailure(
+            s"Failed to create a repair plan for Iconik ${storedEntity.entity.entityType} ${storedEntity.entity.id}",
+            Some(error)
+          )
+        )
+    }
 
   private def normalisedEntityIds[A](
       result: Future[Either[DynamoReadError, List[A]]]
@@ -183,85 +346,6 @@ class IconikValidationService(
           .map(_.map(StoredWorkingGroup))
     }
 
-  private def repairEntity(
-      storedEntity: StoredIconikEntity,
-      collection: Option[IconikCollection]
-  ): Either[DynamoFailure, Boolean] =
-    try {
-      storedEntity match {
-        case StoredProject(project) =>
-          val updated = collection match {
-            case None =>
-              project.copy(
-                title = IconikValidationService.markDeletedTitle(project.title)
-              )
-            case Some(col) =>
-              val updatedCommissionId =
-                col.parentId.getOrElse(project.commissionId)
-              val updatedWorkingGroupId =
-                if (updatedCommissionId == project.commissionId)
-                  project.workingGroupId
-                else
-                  iconikStore
-                    .getCommission(updatedCommissionId)
-                    .toOption
-                    .flatten
-                    .map(_.workingGroupId)
-                    .getOrElse(project.workingGroupId)
-              project.copy(
-                title = col.title,
-                commissionId = updatedCommissionId,
-                workingGroupId = updatedWorkingGroupId
-              )
-          }
-          if (updated != project) {
-            iconikStore.upsertProject(updated)
-            Right(true)
-          } else Right(false)
-
-        case StoredCommission(commission) =>
-          val updated = collection match {
-            case None =>
-              commission.copy(
-                title =
-                  IconikValidationService.markDeletedTitle(commission.title)
-              )
-            case Some(col) =>
-              commission.copy(
-                title = col.title,
-                workingGroupId =
-                  col.parentId.getOrElse(commission.workingGroupId)
-              )
-          }
-          if (updated != commission) {
-            iconikStore.upsertCommission(updated)
-            Right(true)
-          } else Right(false)
-
-        case StoredWorkingGroup(workingGroup) =>
-          val updated = collection match {
-            case None =>
-              workingGroup.copy(
-                title =
-                  IconikValidationService.markDeletedTitle(workingGroup.title)
-              )
-            case Some(col) =>
-              workingGroup.copy(title = col.title)
-          }
-          if (updated != workingGroup) {
-            iconikStore.upsertWorkingGroup(updated)
-            Right(true)
-          } else Right(false)
-      }
-    } catch {
-      case NonFatal(error) =>
-        Left(
-          DynamoFailure(
-            s"Failed to repair Iconik ${storedEntity.entity.entityType} ${storedEntity.entity.id} in Dynamo",
-            Some(error)
-          )
-        )
-    }
 }
 
 object IconikValidationService {

@@ -11,13 +11,6 @@ class IconikStore[E](
     workingGroupStore: IconikDataStore[IconikWorkingGroup, E]
 ) extends Logging {
 
-  def upsertProject(project: IconikProject): Unit =
-    projectStore.upsert(project)
-  def upsertCommission(commission: IconikCommission): Unit =
-    commissionStore.upsert(commission)
-  def upsertWorkingGroup(workingGroup: IconikWorkingGroup): Unit =
-    workingGroupStore.upsert(workingGroup)
-
   def getProject(projectId: String): Either[E, Option[IconikProject]] =
     projectStore.getById(projectId)
   def getProjectsByCommissionId(
