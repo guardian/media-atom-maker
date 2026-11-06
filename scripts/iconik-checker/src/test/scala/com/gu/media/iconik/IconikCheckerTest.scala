@@ -3,12 +3,13 @@ package com.gu.media.iconik
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scanamo.DynamoReadError
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import software.amazon.awssdk.auth.credentials.{
   AwsBasicCredentials,
   StaticCredentialsProvider
 }
 import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets.UTF_8
@@ -26,9 +27,12 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
     finally {
       List(
         "report.jsonl",
+        "report.repairs.jsonl",
         "report.missing.jsonl",
         "report.name-mismatches.jsonl",
-        "report.parent-mismatches.jsonl"
+        "report.parent-mismatches.jsonl",
+        "report.unrepairable.jsonl",
+        "apply-plan.jsonl"
       ).foreach(name => Files.deleteIfExists(directory.resolve(name)))
       Files.deleteIfExists(directory)
     }
@@ -39,26 +43,65 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       ((Json.parse(line) \ "entities")(0) \ "id").as[String]
     }
 
-  "IconikChecker" should "require an explicit stage and opt in to repairs" in {
-    IconikChecker.parseOptions(List("CODE", "secret")).repair shouldBe false
-    IconikChecker
-      .parseOptions(List("PROD", "secret", "--repair"))
-      .repair shouldBe true
+  "IconikChecker" should "require an explicit stage and parse report and plan paths" in {
+    IconikChecker.parseOptions(List("CODE", "secret")).planOutput shouldBe
+      Paths.get("iconik-checker-CODE.repairs.jsonl")
     IconikChecker
       .parseOptions(
-        List("CODE", "secret", "--output", "/tmp/report.jsonl", "--repair")
+        List(
+          "CODE",
+          "secret",
+          "--output",
+          "/tmp/report.jsonl",
+          "--plan-output",
+          "/tmp/plan.jsonl"
+        )
       )
       .output shouldBe Paths.get("/tmp/report.jsonl")
+    IconikChecker
+      .parseOptions(
+        List("CODE", "secret", "--plan-output", "/tmp/plan.jsonl")
+      )
+      .planOutput shouldBe Paths.get("/tmp/plan.jsonl")
     List(
       Nil,
       List("DEV", "secret"),
       List("CODE", "secret", "--unknown"),
-      List("CODE", "secret", "--repair", "extra"),
+      List("CODE", "secret", "--repair"),
       List("CODE", "secret", "--output"),
       List("CODE", "secret", "--output", "--repair")
     ).foreach { args =>
       intercept[IllegalArgumentException] {
         IconikChecker.parseOptions(args)
+      }
+    }
+    IconikChecker.parseApplyOptions(
+      List(
+        "PROD",
+        "/tmp/plan.jsonl",
+        "--id",
+        "project:one",
+        "--id",
+        "commission:two"
+      )
+    ) shouldBe IconikChecker.ApplyOptions(
+      "PROD",
+      Paths.get("/tmp/plan.jsonl"),
+      Set("project:one", "commission:two"),
+      applyAll = false
+    )
+    IconikChecker
+      .parseApplyOptions(
+        List("CODE", "/tmp/plan.jsonl", "--all")
+      )
+      .applyAll shouldBe true
+    List(
+      List("CODE", "/tmp/plan.jsonl"),
+      List("CODE", "/tmp/plan.jsonl", "--all", "--id", "project:one"),
+      List("CODE", "/tmp/plan.jsonl", "--id", "unknown:one")
+    ).foreach { args =>
+      intercept[IllegalArgumentException] {
+        IconikChecker.parseApplyOptions(args)
       }
     }
   }
@@ -113,8 +156,9 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       def run(): Unit =
         IconikChecker.checkToFile(
           service,
-          repair = false,
+          "CODE",
           output,
+          output.resolveSibling("report.repairs.jsonl"),
           () => (),
           ansi = false
         )
@@ -128,9 +172,18 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
         output.resolveSibling("report.name-mismatches.jsonl")
       ) shouldBe
         List("group-1", "group-2")
+      val completePlan = Files
+        .readAllLines(output.resolveSibling("report.repairs.jsonl"), UTF_8)
+        .asScala
+        .toList
+      (Json.parse(completePlan.last) \ "type").as[String] shouldBe "complete"
+      (Json.parse(completePlan.last) \ "changes").as[Int] shouldBe 2
       reportedIds(output.resolveSibling("report.missing.jsonl")) shouldBe empty
       reportedIds(
         output.resolveSibling("report.parent-mismatches.jsonl")
+      ) shouldBe empty
+      reportedIds(
+        output.resolveSibling("report.unrepairable.jsonl")
       ) shouldBe empty
       stdout.toString(UTF_8) shouldBe ""
       stderr.toString(UTF_8) shouldBe
@@ -140,8 +193,9 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       Console.withErr(stderr) {
         IconikChecker.checkToFile(
           service,
-          repair = false,
+          "CODE",
           output,
+          output.resolveSibling("report.repairs.jsonl"),
           () => (),
           ansi = true
         )
@@ -169,10 +223,46 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
         output.resolveSibling("report.name-mismatches.jsonl")
       ) shouldBe
         List("group-1")
+      val incompletePlan = Files
+        .readAllLines(output.resolveSibling("report.repairs.jsonl"), UTF_8)
+        .asScala
+        .toList
+      (Json.parse(incompletePlan.last) \ "type").as[String] shouldBe "change"
+      var invoked = false
+      intercept[IllegalArgumentException] {
+        IconikChecker.applyPlan(
+          IconikChecker.ApplyOptions(
+            "CODE",
+            output.resolveSibling("report.repairs.jsonl"),
+            Set.empty,
+            applyAll = true
+          ),
+          _ => {
+            invoked = true
+            0
+          }
+        )
+      }
+      invoked shouldBe false
     }
   }
 
-  it should "split defects into separate files, include overlapping defects and exclude healthy entities" in {
+  it should "split defects into separate files, write unrepairable entities and exclude healthy entities" in {
+    val projects = new IconikInMemoryStoreWithParentIndex[
+      IconikProject,
+      DynamoReadError
+    ]()
+    projects.upsert(
+      IconikProject(
+        id = "unrepairable-project",
+        title = "Project title",
+        status = "active",
+        workingGroupId = "group-1",
+        commissionId = "commission-1",
+        masterPlaceholderId = None,
+        createdAt = None
+      )
+    )
     val commissions = new IconikInMemoryStoreWithParentIndex[
       IconikCommission,
       DynamoReadError
@@ -182,16 +272,17 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
     }
     val service = new IconikValidationService(
       new IconikStore(
-        new IconikInMemoryStoreWithParentIndex[
-          IconikProject,
-          DynamoReadError
-        ](),
+        projects,
         commissions,
         new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
       ),
       new IconikCollectionClient {
         override def getCollection(id: String, credentials: IconikCredentials) =
           Future.successful(Right(id match {
+            case "unrepairable-project" =>
+              Some(
+                IconikCollection("Project title", Some("missing-commission"))
+              )
             case "missing" => None
             case "mismatched" =>
               Some(IconikCollection("New title", Some("group-2")))
@@ -203,12 +294,18 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
     withReportFile { output =>
       IconikChecker.checkToFile(
         service,
-        repair = false,
+        "CODE",
         output,
+        output.resolveSibling("report.repairs.jsonl"),
         () => (),
         ansi = false
       )
-      reportedIds(output).toSet shouldBe Set("missing", "mismatched", "healthy")
+      reportedIds(output).toSet shouldBe Set(
+        "unrepairable-project",
+        "missing",
+        "mismatched",
+        "healthy"
+      )
       reportedIds(output.resolveSibling("report.missing.jsonl")) shouldBe List(
         "missing"
       )
@@ -217,7 +314,31 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       ) shouldBe List("mismatched")
       reportedIds(
         output.resolveSibling("report.parent-mismatches.jsonl")
-      ) shouldBe List("mismatched")
+      ) shouldBe List("unrepairable-project", "mismatched")
+      val unrepairableLines = Files
+        .readAllLines(output.resolveSibling("report.unrepairable.jsonl"), UTF_8)
+        .asScala
+        .toList
+        .map(Json.parse)
+      unrepairableLines.map(json =>
+        ((json \ "entities")(0) \ "id").as[String]
+      ) shouldBe List("unrepairable-project")
+      (unrepairableLines.head \ "reason").as[String] shouldBe
+        "Iconik commission missing-commission is missing from Dynamo"
+      val repairPlans = Files
+        .readAllLines(
+          output.resolveSibling("report.repairs.jsonl"),
+          UTF_8
+        )
+        .asScala
+        .toList
+        .map(Json.parse)
+        .filter(json => (json \ "type").as[String] == "change")
+      repairPlans.map(json => (json \ "id").as[String]) shouldBe
+        List("missing", "mismatched")
+      (repairPlans.head \ "backup" \ "title").as[String] shouldBe "missing"
+      (repairPlans.head \ "update" \ "title" \ "to").as[String] shouldBe
+        "[deleted] missing"
     }
   }
 
@@ -244,8 +365,8 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
     Console.withErr(stderr) {
       IconikChecker.check(
         service,
-        repair = false,
-        _ => fail("No report should be emitted"),
+        "CODE",
+        (_, _, _) => fail("No report should be emitted"),
         () => fail("No pause should be needed"),
         ansi = false
       )
@@ -254,7 +375,91 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       "\rICONIK [####################] 0/0 (100%)\nChecked 0 Iconik objects.\n"
   }
 
-  it should "check entities sequentially without writing unless repair is enabled" in {
+  it should "apply selected plan IDs or an explicitly approved whole plan with conditional updates" in {
+    withReportFile { output =>
+      val planPath = output.resolveSibling("apply-plan.jsonl")
+      val records = List(
+        Json.obj(
+          "type" -> "change",
+          "version" -> 1,
+          "stage" -> "CODE",
+          "entityType" -> "working_group",
+          "id" -> "group-1",
+          "tableName" -> "media-atom-maker-CODE-iconik-working-groups-table-v2",
+          "backup" -> Json.obj("id" -> "group-1", "title" -> "Old group"),
+          "after" -> Json.obj("id" -> "group-1", "title" -> "New group"),
+          "update" -> Json.obj(
+            "title" -> Json.obj("from" -> "Old group", "to" -> "New group")
+          )
+        ),
+        Json.obj(
+          "type" -> "change",
+          "version" -> 1,
+          "stage" -> "CODE",
+          "entityType" -> "commission",
+          "id" -> "commission-1",
+          "tableName" -> "media-atom-maker-CODE-iconik-commissions-table-v2",
+          "backup" -> Json.obj(
+            "id" -> "commission-1",
+            "title" -> "Old commission",
+            "workingGroupId" -> "group-1"
+          ),
+          "after" -> Json.obj(
+            "id" -> "commission-1",
+            "title" -> "New commission",
+            "workingGroupId" -> "group-1"
+          ),
+          "update" -> Json.obj(
+            "title" -> Json.obj(
+              "from" -> "Old commission",
+              "to" -> "New commission"
+            )
+          )
+        )
+      )
+      Files.write(
+        planPath,
+        (records :+ Json.obj(
+          "type" -> "complete",
+          "version" -> 1,
+          "stage" -> "CODE",
+          "changes" -> records.size
+        )).map(Json.stringify).mkString("\n").getBytes(UTF_8)
+      )
+
+      var selectedRequests = List.empty[UpdateItemRequest]
+      IconikChecker.applyPlan(
+        IconikChecker.ApplyOptions(
+          "CODE",
+          planPath,
+          Set("working_group:group-1"),
+          applyAll = false
+        ),
+        request => selectedRequests = selectedRequests :+ request
+      )
+      selectedRequests.size shouldBe 1
+      val request = selectedRequests.head
+      request.tableName() shouldBe
+        "media-atom-maker-CODE-iconik-working-groups-table-v2"
+      request.updateExpression() shouldBe
+        "SET #field0 = :new0"
+      request.conditionExpression() should include(
+        "#field0 = :old0"
+      )
+      request.expressionAttributeValues().get(":old0").s() shouldBe
+        "Old group"
+
+      var allRequests = List.empty[UpdateItemRequest]
+      IconikChecker.applyPlan(
+        IconikChecker
+          .ApplyOptions("CODE", planPath, Set.empty, applyAll = true),
+        request => allRequests = allRequests :+ request
+      )
+      allRequests.size shouldBe 2
+    }
+  }
+
+  it should "check entities sequentially and emit repair plans without writing" in {
     val groups =
       new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
     groups.upsert(IconikWorkingGroup("group-1", "Old title"))
@@ -280,37 +485,28 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       IconikCredentials("app", "token")
     )
     var reports = List.empty[IconikValidationReport]
-    def run(repair: Boolean): Unit =
-      IconikChecker.check(
-        service,
-        repair,
-        report => reports = reports :+ report,
-        () => events = events :+ "pause"
-      )
-
-    run(repair = false)
+    var plans = List.empty[JsObject]
+    IconikChecker.check(
+      service,
+      "CODE",
+      (report, plan, _) => {
+        reports = reports :+ report
+        plan.foreach(value => plans = plans :+ value)
+      },
+      () => events = events :+ "pause"
+    )
     events shouldBe List("group-1", "pause", "group-2", "pause")
     reports.map(_.summary.nameMismatches) shouldBe List(1, 1)
+    plans.map(plan => (plan \ "id").as[String]) shouldBe
+      List("group-1", "group-2")
     store
       .getWorkingGroup("group-1")
       .toOption
       .flatten
       .get
       .title shouldBe "Old title"
-
-    run(repair = true)
-    store
-      .getWorkingGroup("group-1")
-      .toOption
-      .flatten
-      .get
-      .title shouldBe "New title"
-    store
-      .getWorkingGroup("group-2")
-      .toOption
-      .flatten
-      .get
-      .title shouldBe "New title"
+    store.getWorkingGroup("group-2").toOption.flatten.get.title shouldBe
+      "Other title"
   }
 
   it should "stop and fail when Iconik cannot be checked" in {
@@ -338,8 +534,8 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
     val error = intercept[IllegalStateException] {
       IconikChecker.check(
         service,
-        repair = false,
-        _ => fail("No report should be emitted"),
+        "CODE",
+        (_, _, _) => fail("No report should be emitted"),
         () => fail("No further checks should run")
       )
     }

@@ -89,11 +89,10 @@ case class IconikEntityValidationResult(
     expectedName: String,
     iconikName: Option[String],
     expectedParentId: Option[String],
-    iconikParentId: Option[String],
-    repaired: Boolean = false
+    iconikParentId: Option[String]
 ) {
-  def toJson: JsObject = {
-    val base = Json.obj(
+  def toJson: JsObject =
+    Json.obj(
       "entityType" -> entityType,
       "id" -> id,
       "exists" -> exists,
@@ -104,8 +103,6 @@ case class IconikEntityValidationResult(
       "expectedParentId" -> optionalString(expectedParentId),
       "iconikParentId" -> optionalString(iconikParentId)
     )
-    if (repaired) base + ("repaired" -> JsBoolean(true)) else base
-  }
 
   private def optionalBoolean(value: Option[Boolean]): JsValue =
     value.map(JsBoolean(_)).getOrElse(JsNull)
@@ -114,22 +111,37 @@ case class IconikEntityValidationResult(
     value.map(JsString(_)).getOrElse(JsNull)
 }
 
+sealed trait IconikRepairDecision
+
+case class IconikRepairPlan(
+    entityType: String,
+    id: String,
+    before: JsObject,
+    after: JsObject
+) extends IconikRepairDecision
+
+case class IconikUnrepairable(
+    entityType: String,
+    id: String,
+    reason: String
+) extends IconikRepairDecision {
+  def toJson(report: IconikValidationReport): JsObject =
+    report.toJson + ("reason" -> JsString(reason))
+}
+
 case class IconikValidationSummary(
     total: Int,
     missing: Int,
     nameMismatches: Int,
-    parentMismatches: Int,
-    repaired: Int = 0
+    parentMismatches: Int
 ) {
-  def toJson: JsObject = {
-    val base = Json.obj(
+  def toJson: JsObject =
+    Json.obj(
       "total" -> total,
       "missing" -> missing,
       "nameMismatches" -> nameMismatches,
       "parentMismatches" -> parentMismatches
     )
-    if (repaired > 0) base + ("repaired" -> JsNumber(repaired)) else base
-  }
 }
 
 case class IconikValidationReport(
@@ -153,8 +165,7 @@ object IconikValidationReport {
         total = entities.size,
         missing = entities.count(entity => !entity.exists),
         nameMismatches = entities.count(_.nameMatches.contains(false)),
-        parentMismatches = entities.count(_.parentMatches.contains(false)),
-        repaired = entities.count(_.repaired)
+        parentMismatches = entities.count(_.parentMatches.contains(false))
       )
     )
 }

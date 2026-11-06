@@ -241,7 +241,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     }.getMessage should include("missing token")
   }
 
-  "IconikValidationService with repair = true" should "update mismatched project title, commissionId, and workingGroupId in Dynamo" in {
+  "IconikValidationService" should "create a guarded plan for mismatched project fields without writing to Dynamo" in {
     val project = IconikProject(
       id = "project-1",
       title = "Stored project",
@@ -287,23 +287,34 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     )
 
     val result = Await.result(
-      service.validate(IconikEntityType.Project, "project-1", repair = true),
+      service.validateWithPlan(IconikEntityType.Project, "project-1"),
       5.seconds
     )
 
-    result.map(_.summary.repaired) shouldBe Right(1)
-    store.getProject("project-1") shouldBe Right(
+    result.map(_._2) shouldBe Right(
       Some(
-        project.copy(
-          title = "Renamed project",
-          commissionId = "other-commission",
-          workingGroupId = "working-group-2"
+        IconikRepairPlan(
+          "project",
+          "project-1",
+          Json
+            .toJson(project)(IconikProject.format)
+            .as[play.api.libs.json.JsObject],
+          Json
+            .toJson(
+              project.copy(
+                title = "Renamed project",
+                commissionId = "other-commission",
+                workingGroupId = "working-group-2"
+              )
+            )(IconikProject.format)
+            .as[play.api.libs.json.JsObject]
         )
       )
     )
+    store.getProject("project-1") shouldBe Right(Some(project))
   }
 
-  it should "prefix missing entities with [deleted] idempotently without removing them" in {
+  it should "plan to prefix missing entities with [deleted] without changing Dynamo" in {
     val commission = IconikCommission(
       workingGroupId = "working-group-1",
       id = "commission-1",
@@ -335,30 +346,71 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
       IconikCredentials("test-app", "test-token")
     )
 
-    val firstRun = Await.result(
-      service.validate(
-        IconikEntityType.Commission,
-        "commission-1",
-        repair = true
-      ),
+    val result = Await.result(
+      service.validateWithPlan(IconikEntityType.Commission, "commission-1"),
       5.seconds
-    )
-    firstRun.map(_.summary.repaired) shouldBe Right(1)
-    store.getCommission("commission-1") shouldBe Right(
-      Some(commission.copy(title = "[deleted] Stored commission"))
     )
 
-    val secondRun = Await.result(
-      service.validate(
-        IconikEntityType.Commission,
-        "commission-1",
-        repair = true
-      ),
+    result.map {
+      case (_, Some(plan: IconikRepairPlan)) =>
+        (plan.after \ "title").as[String]
+      case other => fail(s"Unexpected result: $other")
+    } shouldBe Right("[deleted] Stored commission")
+    store.getCommission("commission-1") shouldBe Right(Some(commission))
+  }
+
+  it should "report a project as unrepairable when its new commission is missing from Dynamo" in {
+    val project = IconikProject(
+      id = "project-1",
+      title = "Stored project",
+      status = "active",
+      workingGroupId = "working-group-1",
+      commissionId = "commission-1",
+      masterPlaceholderId = None,
+      createdAt = None
+    )
+    val projectStore =
+      new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
+    val commissionStore = new IconikInMemoryStoreWithParentIndex[
+      IconikCommission,
+      DynamoReadError
+    ]()
+    val workingGroupStore =
+      new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
+    projectStore.upsert(project)
+
+    val store =
+      new IconikStore(projectStore, commissionStore, workingGroupStore)
+    val client = new IconikCollectionClient {
+      override def getCollection(
+          entityId: String,
+          providedCredentials: IconikCredentials
+      ) = Future.successful(
+        Right(
+          Some(IconikCollection("Stored project", Some("missing-commission")))
+        )
+      )
+    }
+
+    val service = new IconikValidationService(
+      store,
+      client,
+      IconikCredentials("test-app", "test-token")
+    )
+
+    val result = Await.result(
+      service.validateWithPlan(IconikEntityType.Project, "project-1"),
       5.seconds
     )
-    secondRun.map(_.summary.repaired) shouldBe Right(0)
-    store.getCommission("commission-1") shouldBe Right(
-      Some(commission.copy(title = "[deleted] Stored commission"))
+
+    result.map(_._2) shouldBe Right(
+      Some(
+        IconikUnrepairable(
+          "project",
+          "project-1",
+          "Iconik commission missing-commission is missing from Dynamo"
+        )
+      )
     )
   }
 
