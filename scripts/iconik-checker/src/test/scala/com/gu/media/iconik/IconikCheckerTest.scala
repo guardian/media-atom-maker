@@ -32,7 +32,8 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
         "report.name-mismatches.jsonl",
         "report.parent-mismatches.jsonl",
         "report.unrepairable.jsonl",
-        "apply-plan.jsonl"
+        "apply-plan.jsonl",
+        "apply-plan.failed.jsonl"
       ).foreach(name => Files.deleteIfExists(directory.resolve(name)))
       Files.deleteIfExists(directory)
     }
@@ -453,9 +454,21 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       IconikChecker.applyPlan(
         IconikChecker
           .ApplyOptions("CODE", planPath, Set.empty, applyAll = true),
-        request => allRequests = allRequests :+ request
+        request => {
+          allRequests = allRequests :+ request
+          if (request.key().get("id").s() == "group-1")
+            throw new RuntimeException("ConditionalCheckFailedException")
+        }
       )
       allRequests.size shouldBe 2
+      val failedLines = Files
+        .readAllLines(output.resolveSibling("apply-plan.failed.jsonl"), UTF_8)
+        .asScala
+        .toList
+        .map(Json.parse)
+      failedLines.map(json => (json \ "id").as[String]) shouldBe List("group-1")
+      (failedLines.head \ "error").as[String] shouldBe
+        "ConditionalCheckFailedException"
     }
   }
 
