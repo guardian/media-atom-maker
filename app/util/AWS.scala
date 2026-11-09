@@ -41,6 +41,11 @@ class AWSConfig(
 
   lazy val gridUrl = getMandatoryString("grid.url")
 
+  def corsAllowedOrigins(endpoint: String): Seq[String] =
+    getStringSet(s"cors.allowedOrigins.$endpoint").toSeq
+      .map(_.stripSuffix("/"))
+      .distinct
+
   lazy val gaPropertyId: Option[String] = getString("gaPropertyId")
 
   lazy val targetingUrl = getMandatoryString("targeting.url")
