@@ -40,7 +40,7 @@ class IconikValidationService(
           projects <- projectIds
           commissions <- commissionIds
           workingGroups <- workingGroupIds
-        } yield projects ++ commissions ++ workingGroups
+        } yield commissions ++ projects ++ workingGroups
       }
     } catch {
       case NonFatal(error) =>
@@ -58,24 +58,33 @@ class IconikValidationService(
       entityType: IconikEntityType,
       id: String
   ): Future[Either[IconikValidationError, IconikValidationReport]] = {
-    validateInternal(entityType, id, createPlan = false).map(_.map(_._1))
+    validateInternal(entityType, id, createPlan = false, Map.empty).map(
+      _.map(_._1)
+    )
   }
 
   def validateWithPlan(
       entityType: IconikEntityType,
-      id: String
+      id: String,
+      plannedCommissionWorkingGroups: Map[String, String] = Map.empty
   ): Future[
     Either[
       IconikValidationError,
       (IconikValidationReport, Option[IconikRepairDecision])
     ]
   ] =
-    validateInternal(entityType, id, createPlan = true)
+    validateInternal(
+      entityType,
+      id,
+      createPlan = true,
+      plannedCommissionWorkingGroups
+    )
 
   private def validateInternal(
       entityType: IconikEntityType,
       id: String,
-      createPlan: Boolean
+      createPlan: Boolean,
+      plannedCommissionWorkingGroups: Map[String, String]
   ): Future[
     Either[
       IconikValidationError,
@@ -112,7 +121,12 @@ class IconikValidationService(
                 DynamoFailure,
                 Option[IconikRepairDecision]
               ] =
-                if (createPlan) planRepair(storedEntity, collection)
+                if (createPlan)
+                  planRepair(
+                    storedEntity,
+                    collection,
+                    plannedCommissionWorkingGroups
+                  )
                 else Right(None)
               repairDecision match {
                 case Left(error) => Left(error: IconikValidationError)
@@ -144,7 +158,8 @@ class IconikValidationService(
 
   private def planRepair(
       storedEntity: StoredIconikEntity,
-      collection: Option[IconikCollection]
+      collection: Option[IconikCollection],
+      plannedCommissionWorkingGroups: Map[String, String]
   ): Either[DynamoFailure, Option[IconikRepairDecision]] =
     try {
       def itemJson(entity: StoredIconikEntity): JsObject =
@@ -177,9 +192,6 @@ class IconikValidationService(
                     Right(StoredProject(project))
                   case None =>
                     Right(StoredProject(project.copy(title = col.title)))
-                  case Some(updatedCommissionId)
-                      if updatedCommissionId == project.commissionId =>
-                    Right(StoredProject(project.copy(title = col.title)))
                   case Some(updatedCommissionId) =>
                     iconikStore.getCommission(updatedCommissionId) match {
                       case Right(Some(commission)) =>
@@ -188,7 +200,11 @@ class IconikValidationService(
                             project.copy(
                               title = col.title,
                               commissionId = updatedCommissionId,
-                              workingGroupId = commission.workingGroupId
+                              workingGroupId =
+                                plannedCommissionWorkingGroups.getOrElse(
+                                  updatedCommissionId,
+                                  commission.workingGroupId
+                                )
                             )
                           )
                         )

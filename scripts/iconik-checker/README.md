@@ -32,6 +32,10 @@ is written so completed results remain available if a later check fails.
 The apply runner requires the completion record, so it rejects a partial plan
 left by a failed analysis.
 
+Commissions are checked before projects. Project repairs reconcile the working
+group even when the commission ID is unchanged, using the commission's planned
+working group if it is also changing in the same analysis.
+
 Each repair-plan line includes the stage, entity type, ID, target table, the
 full logical item in `backup` and `after`, and an `update` object with the old
 and proposed values for each changed field. Review the plan before applying
@@ -65,6 +69,10 @@ Analysis needs `dynamodb:Scan` and `dynamodb:GetItem` on those tables, plus
 `secretsmanager:GetSecretValue` on the supplied secret (and `kms:Decrypt` if
 the secret uses a customer-managed key). Repairs are never written during
 analysis.
+
+Related commission and project updates are not atomic. If you apply only
+selected entities or an update fails, review the remaining repairs and run
+analysis again after applying them.
 
 The checker updates one progress line on stderr with a bold cyan `ICONIK`
 badge, a bar, the completed count, and percentage. It turns green at

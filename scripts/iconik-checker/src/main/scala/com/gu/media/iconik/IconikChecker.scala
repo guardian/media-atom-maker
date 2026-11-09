@@ -337,6 +337,7 @@ object IconikChecker {
       .result(service.listEntityIds(), 10.minutes)
       .fold(error => throw new IllegalStateException(error.message), identity)
     val total = entityIds.size
+    var plannedCommissionWorkingGroups = Map.empty[String, String]
 
     def showProgress(completed: Int): Unit = {
       val percent =
@@ -364,7 +365,14 @@ object IconikChecker {
             )
           )
         val (report, decision) = Await
-          .result(service.validateWithPlan(entityType, entity.id), 2.minutes)
+          .result(
+            service.validateWithPlan(
+              entityType,
+              entity.id,
+              plannedCommissionWorkingGroups
+            ),
+            2.minutes
+          )
           .fold(
             error =>
               throw new IllegalStateException(
@@ -375,6 +383,10 @@ object IconikChecker {
           )
         val (planJson, unrepairableJson) = decision match {
           case Some(plan: IconikRepairPlan) =>
+            if (entityType == IconikEntityType.Commission) {
+              plannedCommissionWorkingGroups +=
+                plan.id -> (plan.after \ "workingGroupId").as[String]
+            }
             (Some(plannedChange(stage, plan).toJson), None)
           case Some(unrepairable: IconikUnrepairable) =>
             (None, Some(unrepairable.toJson(report)))

@@ -79,8 +79,8 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     val service = new IconikValidationService(store, client, credentials)
     Await.result(service.listEntityIds(), 5.seconds) shouldBe Right(
       List(
-        IconikEntityId("project", "project-1"),
         IconikEntityId("commission", "commission-1"),
+        IconikEntityId("project", "project-1"),
         IconikEntityId("working_group", "working-group-1")
       )
     )
@@ -312,6 +312,60 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
       )
     )
     store.getProject("project-1") shouldBe Right(Some(project))
+  }
+
+  it should "reconcile a project's working group when its commission ID is unchanged" in {
+    val project = IconikProject(
+      id = "project-1",
+      title = "Stored project",
+      status = "active",
+      workingGroupId = "working-group-1",
+      commissionId = "commission-1",
+      masterPlaceholderId = None,
+      createdAt = None
+    )
+    val projects =
+      new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
+    val commissions =
+      new IconikInMemoryStoreWithParentIndex[
+        IconikCommission,
+        DynamoReadError
+      ]()
+    projects.upsert(project)
+    commissions.upsert(
+      IconikCommission("working-group-2", "commission-1", "Commission")
+    )
+    val store = new IconikStore(
+      projects,
+      commissions,
+      new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
+    )
+    val service = new IconikValidationService(
+      store,
+      new IconikCollectionClient {
+        override def getCollection(id: String, credentials: IconikCredentials) =
+          Future.successful(
+            Right(
+              Some(IconikCollection(project.title, Some(project.commissionId)))
+            )
+          )
+      },
+      IconikCredentials("app", "token")
+    )
+
+    val result = Await.result(
+      service.validateWithPlan(IconikEntityType.Project, project.id),
+      5.seconds
+    )
+    result.map {
+      case (_, Some(plan: IconikRepairPlan)) => plan.after
+      case other => fail(s"Unexpected result: $other")
+    } shouldBe Right(
+      Json.toJson(project.copy(workingGroupId = "working-group-2"))(
+        IconikProject.format
+      )
+    )
+    store.getProject(project.id) shouldBe Right(Some(project))
   }
 
   it should "plan to prefix missing entities with [deleted] without changing Dynamo" in {

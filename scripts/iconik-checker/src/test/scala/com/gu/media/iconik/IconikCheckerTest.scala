@@ -315,7 +315,7 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       ) shouldBe List("mismatched")
       reportedIds(
         output.resolveSibling("report.parent-mismatches.jsonl")
-      ) shouldBe List("unrepairable-project", "mismatched")
+      ) shouldBe List("mismatched", "unrepairable-project")
       val unrepairableLines = Files
         .readAllLines(output.resolveSibling("report.unrepairable.jsonl"), UTF_8)
         .asScala
@@ -520,6 +520,79 @@ class IconikCheckerTest extends AnyFlatSpec with Matchers {
       .title shouldBe "Old title"
     store.getWorkingGroup("group-2").toOption.flatten.get.title shouldBe
       "Other title"
+  }
+
+  it should "plan commissions before projects and use the planned working group for unchanged and moved parents" in {
+    val projects =
+      new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
+    val commissions =
+      new IconikInMemoryStoreWithParentIndex[
+        IconikCommission,
+        DynamoReadError
+      ]()
+    val storedProjects =
+      List("commission-1", "other-commission").zipWithIndex.map {
+        case (commissionId, index) =>
+          IconikProject(
+            id = s"project-$index",
+            title = "Project",
+            status = "active",
+            workingGroupId = "group-1",
+            commissionId = commissionId,
+            masterPlaceholderId = None,
+            createdAt = None
+          )
+      }
+    storedProjects.foreach(projects.upsert)
+    val commission = IconikCommission("group-1", "commission-1", "Commission")
+    commissions.upsert(commission)
+    val store = new IconikStore(
+      projects,
+      commissions,
+      new IconikInMemoryStore[IconikWorkingGroup, DynamoReadError]()
+    )
+    var requestedIds = List.empty[String]
+    val service = new IconikValidationService(
+      store,
+      new IconikCollectionClient {
+        override def getCollection(
+            id: String,
+            credentials: IconikCredentials
+        ) = {
+          requestedIds = requestedIds :+ id
+          Future.successful(
+            Right(
+              Some(
+                if (id == commission.id)
+                  IconikCollection(commission.title, Some("group-2"))
+                else IconikCollection("Project", Some(commission.id))
+              )
+            )
+          )
+        }
+      },
+      IconikCredentials("app", "token")
+    )
+    var plans = List.empty[JsObject]
+    IconikChecker.check(
+      service,
+      "CODE",
+      (_, plan, _) => plan.foreach(value => plans = plans :+ value),
+      () => (),
+      ansi = false
+    )
+
+    requestedIds shouldBe List("commission-1", "project-0", "project-1")
+    plans.map(plan => (plan \ "id").as[String]) shouldBe requestedIds
+    (plans.head \ "after" \ "workingGroupId").as[String] shouldBe "group-2"
+    plans.tail.foreach { plan =>
+      (plan \ "after" \ "commissionId").as[String] shouldBe commission.id
+      (plan \ "after" \ "workingGroupId").as[String] shouldBe "group-2"
+    }
+    storedProjects.foreach { project =>
+      store.getProject(project.id) shouldBe Right(Some(project))
+    }
+    store.getCommission(commission.id) shouldBe Right(Some(commission))
   }
 
   it should "stop and fail when Iconik cannot be checked" in {
