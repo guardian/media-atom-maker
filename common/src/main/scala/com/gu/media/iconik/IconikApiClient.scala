@@ -1,5 +1,7 @@
 package com.gu.media.iconik
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets.UTF_8
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.ws.WSClient
 
@@ -21,9 +23,10 @@ class IconikApiClient(
   override def getCollection(
       entityId: String,
       credentials: IconikCredentials
-  ): Future[Either[IconikRequestFailure, Option[IconikCollection]]] =
+  ): Future[Either[IconikRequestFailure, Option[IconikCollection]]] = {
+    val encodedId = URLEncoder.encode(entityId, UTF_8).replace("+", "%20")
     wsClient
-      .url(s"$baseUrl/API/assets/v1/collections/$entityId/")
+      .url(s"$baseUrl/API/assets/v1/collections/$encodedId/")
       .addHttpHeaders(
         "App-ID" -> credentials.appId,
         "Auth-Token" -> credentials.token,
@@ -59,4 +62,5 @@ class IconikApiClient(
           )
         )
       }
+  }
 }
