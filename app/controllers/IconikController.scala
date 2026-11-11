@@ -2,11 +2,20 @@ package controllers
 
 import com.gu.atom.data.IDNotFound
 import com.gu.media.logging.Logging
-import com.gu.media.iconik.IconikUpsertRequest
+import com.gu.media.iconik.{
+  IconikSyncService,
+  IconikUpsertRequest,
+  SyncCascadeBlocked,
+  SyncDynamoError,
+  SyncIconikError,
+  SyncInvalidHierarchy,
+  SyncNotFound
+}
 import com.gu.media.model.{MediaAtom, MediaAtomPublishSettings}
 import com.gu.pandahmac.HMACAuthActions
 import com.typesafe.config.Config
 import data.{DataStores, UnpackedDataStores}
+import org.scanamo.DynamoReadError
 import play.api.libs.json.Json
 import play.api.mvc.{
   Action,
@@ -15,6 +24,7 @@ import play.api.mvc.{
   ControllerComponents,
   Cookie
 }
+import scala.concurrent.ExecutionContext
 import util.AWSConfig
 import views.html.helper.CSRF
 
@@ -23,6 +33,7 @@ class IconikController(
     val awsConfig: AWSConfig,
     val authActions: HMACAuthActions,
     override val stores: DataStores,
+    val syncService: IconikSyncService[DynamoReadError],
     val controllerComponents: ControllerComponents
 ) extends BaseController
     with UnpackedDataStores
@@ -30,6 +41,9 @@ class IconikController(
     with Logging {
 
   import authActions.{APIAuthAction, APIHMACAuthAction, AuthAction}
+
+  private implicit val executionContext: ExecutionContext =
+    controllerComponents.executionContext
 
   def getWorkingGroup(groupId: String): Action[AnyContent] = APIAuthAction {
     stores.iconikDataStore.getWorkingGroup(groupId) match {
@@ -137,6 +151,46 @@ class IconikController(
         Ok(Json.toJson(project))
       }
   }
+
+  def syncCollection(id: String): Action[AnyContent] =
+    APIHMACAuthAction.async {
+      syncService.sync(id).map {
+        case Right(result) =>
+          Ok(result.toJson)
+        case Left(error: SyncNotFound) =>
+          NotFound(Json.obj("error" -> error.message))
+        case Left(blocked: SyncCascadeBlocked) =>
+          Conflict(blocked.toJson)
+        case Left(invalid: SyncInvalidHierarchy) =>
+          UnprocessableEntity(
+            Json.obj("error" -> invalid.message, "id" -> invalid.id)
+          )
+        case Left(SyncIconikError(failure)) =>
+          failure.cause match {
+            case Some(cause) =>
+              log.error(s"failed to sync iconik collection $id", cause)
+            case None =>
+              log.error(
+                s"failed to sync iconik collection $id: ${failure.message}"
+              )
+          }
+          BadGateway(
+            Json.obj("error" -> "Failed to fetch collection from Iconik")
+          )
+        case Left(SyncDynamoError(failure)) =>
+          failure.cause match {
+            case Some(cause) =>
+              log.error(s"dynamo failure syncing iconik collection $id", cause)
+            case None =>
+              log.error(
+                s"dynamo failure syncing iconik collection $id: ${failure.message}"
+              )
+          }
+          ServiceUnavailable(
+            Json.obj("error" -> "Failed to access DynamoDB during Iconik sync")
+          )
+      }
+    }
 
   def openInIconik(atomId: String): Action[AnyContent] = AuthAction {
     implicit request =>
