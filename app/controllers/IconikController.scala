@@ -166,25 +166,21 @@ class IconikController(
             Json.obj("error" -> invalid.message, "id" -> invalid.id)
           )
         case Left(SyncIconikError(failure)) =>
-          failure.cause match {
-            case Some(cause) =>
-              log.error(s"failed to sync iconik collection $id", cause)
-            case None =>
-              log.error(
-                s"failed to sync iconik collection $id: ${failure.message}"
-              )
+          val message = s"failed to sync iconik collection $id"
+          failure.cause.fold {
+            log.error(s"$message: ${failure.message}")
+          } { cause =>
+            log.error(message, cause)
           }
           BadGateway(
             Json.obj("error" -> "Failed to fetch collection from Iconik")
           )
         case Left(SyncDynamoError(failure)) =>
-          failure.cause match {
-            case Some(cause) =>
-              log.error(s"dynamo failure syncing iconik collection $id", cause)
-            case None =>
-              log.error(
-                s"dynamo failure syncing iconik collection $id: ${failure.message}"
-              )
+          val message = s"dynamo failure syncing iconik collection $id"
+          failure.cause.fold {
+            log.error(s"$message: ${failure.message}")
+          } { cause =>
+            log.error(message, cause)
           }
           ServiceUnavailable(
             Json.obj("error" -> "Failed to access DynamoDB during Iconik sync")
