@@ -58,9 +58,9 @@ class DynamoIconikAtomStore(
     val linkedAtoms = for {
       preview <- previewFuture
       published <- publishedFuture
-    } yield preview ++ published
+    } yield Right(preview ++ published)
 
-    linkedAtoms.map(Right(_)).recover { case NonFatal(error) =>
+    linkedAtoms.recover { case NonFatal(error) =>
       Left(
         DynamoFailure(
           "Failed to scan atom tables for Iconik references",
