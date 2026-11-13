@@ -1,26 +1,16 @@
 import React from 'react';
 
 type Props = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldValue: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editable: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldName: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  maxLength: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  notification: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  placeholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  displayPlaceholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hasError: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  input: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateField: any;
+  fieldValue: string;
+  editable: boolean;
+  fieldName: string;
+  maxLength: number;
+  notification: { message: string };
+  placeholder: string;
+  displayPlaceholder: (placeholder: string, fieldValue: string) => boolean;
+  hasError: (props: Props) => boolean;
+  input: React.InputHTMLAttributes<HTMLInputElement>;
+  onUpdateField: (value: string) => void;
 };
 
 export default class TextInput extends React.Component<Props> {
@@ -67,7 +57,7 @@ export default class TextInput extends React.Component<Props> {
         <label className="form__label">{this.props.fieldName}</label>
         <input
           {...this.props.input}
-          maxLength={this.props.maxLength || ''}
+          maxLength={this.props.maxLength}
           className={'form__field ' + (hasError ? 'form__field--error' : '')}
           type="text"
           value={this.props.fieldValue}
