@@ -1,28 +1,17 @@
 import React from 'react';
 
 type Props = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldValue: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editable: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldName: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  maxLength: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rows: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  notification: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  placeholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  displayPlaceholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hasError: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  input: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateField: any;
+  fieldValue: string;
+  editable: boolean;
+  fieldName: string;
+  maxLength: number;
+  rows: number;
+  notification: { message: string };
+  placeholder: string;
+  displayPlaceholder: (placeholder: string, fieldValue: string) => boolean;
+  hasError: (props: Props) => boolean;
+  input: React.InputHTMLAttributes<HTMLTextAreaElement>;
+  onUpdateField: (value: string) => void;
 };
 
 export default class TextAreaInput extends React.Component<Props> {
@@ -69,8 +58,8 @@ export default class TextAreaInput extends React.Component<Props> {
         <label className="form__label">{this.props.fieldName}</label>
         <textarea
           {...this.props.input}
-          rows={this.props.rows || '5'}
-          maxLength={this.props.maxLength || ''}
+          rows={this.props.rows || 5}
+          maxLength={this.props.maxLength}
           className={
             'form__field form__field--textarea' +
             (hasError ? 'form__field--error' : '')
