@@ -9,7 +9,7 @@ import com.gu.media.iconik.{
   IconikCommission,
   IconikDynamoStore,
   IconikDynamoStoreWithParentIndex,
-  IconikProject,
+  IconikDynamoProjectStore,
   IconikStore,
   IconikWorkingGroup,
   IndexConfig
@@ -110,7 +110,7 @@ class DataStores(aws: AWSConfig with SNSAccess, capi: CapiAccess) {
       IndexConfig("working-group-index", "workingGroupId")
     )
   private val iconikProjectStore =
-    new IconikDynamoStoreWithParentIndex[IconikProject](
+    new IconikDynamoProjectStore(
       aws,
       aws.iconikProjectTableName,
       IndexConfig("commission-index", "commissionId")
