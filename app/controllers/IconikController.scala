@@ -164,47 +164,55 @@ class IconikController(
           )
         )
       } else
-        syncService.sync(id, dryRun).map {
-          case Right(result) =>
-            Ok(result.toJson)
-          case Left(error: SyncNotFound) =>
-            NotFound(Json.obj("error" -> error.message))
-          case Left(blocked: SyncCascadeBlocked) =>
-            Conflict(blocked.toJson)
-          case Left(conflict: SyncWriteConflict) =>
-            Conflict(
-              Json.obj(
-                "error" -> conflict.message,
-                "id" -> conflict.id,
-                "entityType" -> conflict.entityType
-              )
+        syncService
+          .sync(id, dryRun)
+          .map(
+            _.fold(
+              {
+                case error: SyncNotFound =>
+                  NotFound(Json.obj("error" -> error.message))
+                case blocked: SyncCascadeBlocked =>
+                  Conflict(blocked.toJson)
+                case conflict: SyncWriteConflict =>
+                  Conflict(
+                    Json.obj(
+                      "error" -> conflict.message,
+                      "id" -> conflict.id,
+                      "entityType" -> conflict.entityType
+                    )
+                  )
+                case invalid: SyncInvalidHierarchy =>
+                  UnprocessableEntity(
+                    Json.obj("error" -> invalid.message, "id" -> invalid.id)
+                  )
+                case SyncIconikError(failure) =>
+                  val message = s"failed to sync iconik collection $id"
+                  failure.cause.fold {
+                    log.error(s"$message: ${failure.message}")
+                  } { cause =>
+                    log.error(message, cause)
+                  }
+                  BadGateway(
+                    Json
+                      .obj("error" -> "Failed to fetch collection from Iconik")
+                  )
+                case SyncDynamoError(failure) =>
+                  val message = s"dynamo failure syncing iconik collection $id"
+                  failure.cause.fold {
+                    log.error(s"$message: ${failure.message}")
+                  } { cause =>
+                    log.error(message, cause)
+                  }
+                  ServiceUnavailable(
+                    Json
+                      .obj(
+                        "error" -> "Failed to access DynamoDB during Iconik sync"
+                      )
+                  )
+              },
+              result => Ok(result.toJson)
             )
-          case Left(invalid: SyncInvalidHierarchy) =>
-            UnprocessableEntity(
-              Json.obj("error" -> invalid.message, "id" -> invalid.id)
-            )
-          case Left(SyncIconikError(failure)) =>
-            val message = s"failed to sync iconik collection $id"
-            failure.cause.fold {
-              log.error(s"$message: ${failure.message}")
-            } { cause =>
-              log.error(message, cause)
-            }
-            BadGateway(
-              Json.obj("error" -> "Failed to fetch collection from Iconik")
-            )
-          case Left(SyncDynamoError(failure)) =>
-            val message = s"dynamo failure syncing iconik collection $id"
-            failure.cause.fold {
-              log.error(s"$message: ${failure.message}")
-            } { cause =>
-              log.error(message, cause)
-            }
-            ServiceUnavailable(
-              Json
-                .obj("error" -> "Failed to access DynamoDB during Iconik sync")
-            )
-        }
+          )
     }
 
   def openInIconik(atomId: String): Action[AnyContent] = AuthAction {
