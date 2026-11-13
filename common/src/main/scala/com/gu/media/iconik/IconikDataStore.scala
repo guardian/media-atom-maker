@@ -27,3 +27,12 @@ trait WithParentIdIndex[
 trait IconikDataStoreWithParentIndex[Model <: IconikItemWithParentId, ErrorType]
     extends IconikDataStore[Model, ErrorType]
     with WithParentIdIndex[Model, ErrorType]
+
+trait IconikProjectStore[E]
+    extends IconikDataStoreWithParentIndex[IconikProject, E] {
+  def createIfAbsent(project: IconikProject): Either[E, Boolean]
+  def updateHierarchy(
+      before: IconikProject,
+      after: IconikProject
+  ): Either[E, Boolean]
+}

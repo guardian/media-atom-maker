@@ -1,6 +1,8 @@
 package com.gu.media.iconik
 
-import play.api.libs.json.{JsObject, Json}
+import cats.data.EitherT
+import cats.implicits._
+import play.api.libs.json.{JsNull, JsObject, Json, OWrites, Writes}
 
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
@@ -8,19 +10,35 @@ import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
+case class IconikSyncChange(
+    id: String,
+    entityType: String,
+    action: String,
+    fields: JsObject,
+    isPublished: Option[Boolean] = None
+)
+
+object IconikSyncChange {
+  implicit val writes: OWrites[IconikSyncChange] = Json.writes[IconikSyncChange]
+}
+
 case class IconikSyncResult(
     id: String,
     entityType: String,
     action: String,
     updatedChildIds: List[String] = Nil,
-    updatedAtomIds: List[String] = Nil
+    updatedAtomIds: List[String] = Nil,
+    dryRun: Boolean = false,
+    changes: List[IconikSyncChange] = Nil
 ) {
   def toJson: JsObject = Json.obj(
     "id" -> id,
     "entityType" -> entityType,
     "action" -> action,
     "updatedChildIds" -> updatedChildIds,
-    "updatedAtomIds" -> updatedAtomIds
+    "updatedAtomIds" -> updatedAtomIds,
+    "dryRun" -> dryRun,
+    "changes" -> changes
   )
 }
 
@@ -35,19 +53,27 @@ case class SyncNotFound(id: String) extends IconikSyncError {
 case class SyncInvalidHierarchy(id: String, message: String)
     extends IconikSyncError
 
+case class SyncWriteConflict(id: String, entityType: String)
+    extends IconikSyncError {
+  val message = s"$entityType $id changed during sync; preview and retry"
+}
+
+/** Sync cannot proceed while these child collections or atom references remain
+  * unresolved.
+  */
 case class SyncCascadeBlocked(
     id: String,
     entityType: String,
     message: String,
     blockingChildIds: List[String] = Nil,
-    blockingAtomIds: List[String] = Nil
+    atomIdsPreventingSync: List[String] = Nil
 ) extends IconikSyncError {
   def toJson: JsObject = Json.obj(
     "error" -> message,
     "id" -> id,
     "entityType" -> entityType,
     "blockingChildIds" -> blockingChildIds,
-    "blockingAtomIds" -> blockingAtomIds
+    "atomIdsPreventingSync" -> atomIdsPreventingSync
   )
 }
 
@@ -66,6 +92,49 @@ class IconikSyncService[E](
     iconikApiClient: IconikCollectionClient,
     credentials: IconikCredentials
 )(implicit executionContext: ExecutionContext) {
+
+  private type SyncResult[A] = EitherT[Future, IconikSyncError, A]
+
+  private case class PendingChange(
+      change: IconikSyncChange,
+      run: () => Future[Either[IconikSyncError, Option[IconikSyncChange]]]
+  )
+
+  /** Keeps preview read-only and orders writes to preserve hierarchy
+    * references.
+    */
+  private case class SyncPlan(
+      id: String,
+      entityType: String,
+      steps: List[List[PendingChange]]
+  ) {
+    def changes: List[IconikSyncChange] = steps.flatten.map(_.change)
+
+    def result(
+        changes: List[IconikSyncChange],
+        dryRun: Boolean
+    ): IconikSyncResult =
+      IconikSyncResult(
+        id = id,
+        entityType = entityType,
+        action = changes
+          .find(c => c.id == id && c.entityType == entityType)
+          .map(_.action)
+          .getOrElse(
+            if (changes.exists(_.entityType == "atom")) "updated"
+            else "unchanged"
+          ),
+        updatedChildIds = changes
+          .filter(c => c.entityType == "project" && c.id != id)
+          .map(_.id)
+          .distinct
+          .sorted,
+        updatedAtomIds =
+          changes.filter(_.entityType == "atom").map(_.id).distinct.sorted,
+        dryRun = dryRun,
+        changes = changes
+      )
+  }
 
   private val cachedLibraryRoot = new AtomicReference[Option[String]](None)
   private val maxHierarchyDepth = 6
@@ -110,26 +179,35 @@ class IconikSyncService[E](
         .orElse(workingGroup.map(_ => "working_group"))
   }
 
-  def sync(id: String): Future[Either[IconikSyncError, IconikSyncResult]] = {
+  def sync(
+      id: String,
+      dryRun: Boolean = false
+  ): Future[Either[IconikSyncError, IconikSyncResult]] = {
     val trimmedId = id.trim
     if (trimmedId.isEmpty) {
       Future.successful(
         Left(SyncInvalidHierarchy(id, "Collection ID must not be empty"))
       )
     } else {
-      Future(readStoredState(trimmedId))
-        .flatMap {
-          case Left(error) => Future.successful(Left(error))
-          case Right(stored) =>
-            iconikApiClient.getCollection(trimmedId, credentials).flatMap {
-              case Left(error) =>
-                Future.successful(Left(SyncIconikError(error)))
-              case Right(None) =>
-                syncMissingFromIconik(trimmedId, stored)
-              case Right(Some(collection)) =>
-                syncPresentInIconik(trimmedId, collection, stored)
-            }
+      val result = for {
+        stored <- EitherT(Future(readStoredState(trimmedId)))
+        collection <- fetchCollection(trimmedId)
+        plan <- collection match {
+          case None        => planMissingFromIconik(trimmedId, stored)
+          case Some(value) => planPresentInIconik(trimmedId, value, stored)
         }
+        changes <-
+          if (dryRun) {
+            EitherT.rightT[Future, IconikSyncError](plan.changes)
+          } else {
+            plan.steps.foldM(List.empty[IconikSyncChange]) { (applied, step) =>
+              EitherT(Future.traverse(step)(_.run()).map(_.sequence))
+                .map(results => applied ++ results.flatten)
+            }
+          }
+      } yield plan.result(changes, dryRun)
+
+      result.value
         .recover { case NonFatal(error) =>
           Left(
             SyncDynamoError(
@@ -152,160 +230,165 @@ class IconikSyncService[E](
       workingGroup <- liftStore(iconikStore.getWorkingGroup(id))
     } yield StoredState(project, commission, workingGroup)
 
-  private def syncMissingFromIconik(
+  private def planMissingFromIconik(
       id: String,
       stored: StoredState
-  ): Future[Either[IconikSyncError, IconikSyncResult]] =
+  ): SyncResult[SyncPlan] =
     stored match {
-      case StoredState(Some(_), _, _) =>
-        withLinkedAtoms { atoms =>
-          val blockingAtoms =
+      case StoredState(Some(project), _, _) =>
+        for {
+          atoms <- linkedAtoms
+          atomIdsPreventingSync =
             atoms.filter(_.projectId.contains(id)).map(_.atomId).distinct.sorted
-          if (blockingAtoms.nonEmpty) {
-            Future.successful(
-              Left(
-                SyncCascadeBlocked(
-                  id = id,
-                  entityType = "project",
-                  message =
-                    "Project is missing in Iconik but still referenced by atoms",
-                  blockingAtomIds = blockingAtoms
-                )
-              )
+          _ <- EitherT.cond[Future][IconikSyncError, Unit](
+            atomIdsPreventingSync.isEmpty,
+            (),
+            SyncCascadeBlocked(
+              id = id,
+              entityType = "project",
+              message =
+                "Project is missing in Iconik but still referenced by atoms",
+              atomIdsPreventingSync = atomIdsPreventingSync
             )
-          } else {
-            iconikStore.deleteProject(id)
-            Future.successful(Right(IconikSyncResult(id, "project", "deleted")))
+          )
+        } yield SyncPlan(
+          id,
+          "project",
+          planCollectionChange("project", id, Some(project), None) {
+            Right(iconikStore.deleteProject(id))
           }
-        }
+        )
 
-      case StoredState(None, Some(_), _) =>
-        liftStore(iconikStore.getProjectsByCommissionId(id)) match {
-          case Left(error) => Future.successful(Left(error))
-          case Right(childProjects) if childProjects.nonEmpty =>
-            Future.successful(
-              Left(
-                SyncCascadeBlocked(
-                  id = id,
-                  entityType = "commission",
-                  message =
-                    "Commission has child projects; sync child projects first",
-                  blockingChildIds = childProjects.map(_.id).sorted
-                )
-              )
+      case StoredState(None, Some(commission), _) =>
+        for {
+          childProjects <- EitherT.fromEither[Future](
+            liftStore(iconikStore.getProjectsByCommissionId(id))
+          )
+          _ <- EitherT.cond[Future][IconikSyncError, Unit](
+            childProjects.isEmpty,
+            (),
+            SyncCascadeBlocked(
+              id = id,
+              entityType = "commission",
+              message =
+                "Commission has child projects; sync child projects first",
+              blockingChildIds = childProjects.map(_.id).sorted
             )
-          case Right(_) =>
-            withLinkedAtoms { atoms =>
-              val blockingAtoms = atoms
-                .filter(_.commissionId.contains(id))
-                .map(_.atomId)
-                .distinct
-                .sorted
-              if (blockingAtoms.nonEmpty) {
-                Future.successful(
-                  Left(
-                    SyncCascadeBlocked(
-                      id = id,
-                      entityType = "commission",
-                      message =
-                        "Commission is missing in Iconik but still referenced by atoms",
-                      blockingAtomIds = blockingAtoms
-                    )
-                  )
-                )
-              } else {
-                iconikStore.deleteCommission(id)
-                Future.successful(
-                  Right(IconikSyncResult(id, "commission", "deleted"))
-                )
-              }
-            }
-        }
+          )
+          atoms <- linkedAtoms
+          atomIdsPreventingSync = atoms
+            .filter(_.commissionId.contains(id))
+            .map(_.atomId)
+            .distinct
+            .sorted
+          _ <- EitherT.cond[Future][IconikSyncError, Unit](
+            atomIdsPreventingSync.isEmpty,
+            (),
+            SyncCascadeBlocked(
+              id = id,
+              entityType = "commission",
+              message =
+                "Commission is missing in Iconik but still referenced by atoms",
+              atomIdsPreventingSync = atomIdsPreventingSync
+            )
+          )
+        } yield SyncPlan(
+          id,
+          "commission",
+          planCollectionChange("commission", id, Some(commission), None) {
+            Right(iconikStore.deleteCommission(id))
+          }
+        )
 
-      case StoredState(None, None, Some(_)) =>
-        liftStore(iconikStore.getCommissionsByWorkingGroupId(id)) match {
-          case Left(error) => Future.successful(Left(error))
-          case Right(childCommissions) if childCommissions.nonEmpty =>
-            Future.successful(
-              Left(
-                SyncCascadeBlocked(
-                  id = id,
-                  entityType = "working_group",
-                  message =
-                    "Working group has child commissions; sync child commissions first",
-                  blockingChildIds = childCommissions.map(_.id).sorted
-                )
-              )
+      case StoredState(None, None, Some(workingGroup)) =>
+        for {
+          childCommissions <- EitherT.fromEither[Future](
+            liftStore(iconikStore.getCommissionsByWorkingGroupId(id))
+          )
+          _ <- EitherT.cond[Future][IconikSyncError, Unit](
+            childCommissions.isEmpty,
+            (),
+            SyncCascadeBlocked(
+              id = id,
+              entityType = "working_group",
+              message =
+                "Working group has child commissions; sync child commissions first",
+              blockingChildIds = childCommissions.map(_.id).sorted
             )
-          case Right(_) =>
-            withLinkedAtoms { atoms =>
-              val blockingAtoms = atoms
-                .filter(_.workingGroupId.contains(id))
-                .map(_.atomId)
-                .distinct
-                .sorted
-              if (blockingAtoms.nonEmpty) {
-                Future.successful(
-                  Left(
-                    SyncCascadeBlocked(
-                      id = id,
-                      entityType = "working_group",
-                      message =
-                        "Working group is missing in Iconik but still referenced by atoms",
-                      blockingAtomIds = blockingAtoms
-                    )
-                  )
-                )
-              } else {
-                iconikStore.deleteWorkingGroup(id)
-                Future.successful(
-                  Right(IconikSyncResult(id, "working_group", "deleted"))
-                )
-              }
-            }
-        }
+          )
+          projects <- EitherT.fromEither[Future](
+            liftStore(iconikStore.listProjects())
+          )
+          referencingProjectIds = projects
+            .filter(_.workingGroupId == id)
+            .map(_.id)
+            .sorted
+          _ <- EitherT.cond[Future][IconikSyncError, Unit](
+            referencingProjectIds.isEmpty,
+            (),
+            SyncCascadeBlocked(
+              id = id,
+              entityType = "working_group",
+              message =
+                "Working group is still referenced by projects; sync those projects first",
+              blockingChildIds = referencingProjectIds
+            )
+          )
+          atoms <- linkedAtoms
+          atomIdsPreventingSync = atoms
+            .filter(_.workingGroupId.contains(id))
+            .map(_.atomId)
+            .distinct
+            .sorted
+          _ <- EitherT.cond[Future][IconikSyncError, Unit](
+            atomIdsPreventingSync.isEmpty,
+            (),
+            SyncCascadeBlocked(
+              id = id,
+              entityType = "working_group",
+              message =
+                "Working group is missing in Iconik but still referenced by atoms",
+              atomIdsPreventingSync = atomIdsPreventingSync
+            )
+          )
+        } yield SyncPlan(
+          id,
+          "working_group",
+          planCollectionChange("working_group", id, Some(workingGroup), None) {
+            Right(iconikStore.deleteWorkingGroup(id))
+          }
+        )
 
       case StoredState(None, None, None) =>
-        Future.successful(Left(SyncNotFound(id)))
+        EitherT.leftT[Future, SyncPlan](SyncNotFound(id))
     }
 
-  private def syncPresentInIconik(
+  private def planPresentInIconik(
       id: String,
       collection: IconikCollection,
       stored: StoredState
-  ): Future[Either[IconikSyncError, IconikSyncResult]] =
-    walkAncestors(id, collection).flatMap {
-      case Left(error) => Future.successful(Left(error))
-      case Right((rootId, nodesFromTop)) =>
-        verifyLibraryRoot(rootId).flatMap {
-          case Left(error) => Future.successful(Left(error))
-          case Right(()) =>
-            classify(id, nodesFromTop, stored) match {
-              case Left(error) => Future.successful(Left(error))
-              case Right(resolved) =>
-                stored.storedType.filter(_ != resolved.entityType) match {
-                  case Some(existingType) =>
-                    Future.successful(
-                      Left(
-                        SyncInvalidHierarchy(
-                          id,
-                          s"Collection $id resolved as ${resolved.entityType} in Iconik, conflicting with stored $existingType"
-                        )
-                      )
-                    )
-                  case None =>
-                    applyResolved(resolved, stored)
-                }
-            }
+  ): SyncResult[SyncPlan] =
+    for {
+      ancestors <- walkAncestors(id, collection)
+      (rootId, nodesFromTop) = ancestors
+      _ <- verifyLibraryRoot(rootId)
+      resolved <- EitherT.fromEither[Future](classify(id, nodesFromTop, stored))
+      _ <- EitherT.fromEither[Future](
+        stored.storedType.filter(_ != resolved.entityType).toLeft(()).left.map {
+          existingType =>
+            SyncInvalidHierarchy(
+              id,
+              s"Collection $id resolved as ${resolved.entityType} in Iconik, conflicting with stored $existingType"
+            )
         }
-    }
+      )
+      result <- planResolved(resolved, stored)
+    } yield result
 
   private def walkAncestors(
       leafId: String,
       leaf: IconikCollection
-  ): Future[
-    Either[IconikSyncError, (String, Vector[(String, IconikCollection)])]
-  ] = {
+  ): SyncResult[(String, Vector[(String, IconikCollection)])] = {
     val knownRoot = cachedLibraryRoot.get()
 
     def loop(
@@ -313,75 +396,60 @@ class IconikSyncService[E](
         current: IconikCollection,
         accBelowRoot: List[(String, IconikCollection)],
         visited: Set[String]
-    ): Future[
-      Either[IconikSyncError, (String, Vector[(String, IconikCollection)])]
-    ] =
+    ): SyncResult[(String, Vector[(String, IconikCollection)])] =
       current.parentId match {
         case None =>
-          if (accBelowRoot.isEmpty)
-            Future.successful(
-              Left(
-                SyncInvalidHierarchy(
-                  leafId,
-                  "Cannot sync the top-level root collection directly"
-                )
-              )
+          EitherT.cond[Future](
+            accBelowRoot.nonEmpty,
+            currentId -> accBelowRoot.toVector,
+            SyncInvalidHierarchy(
+              leafId,
+              "Cannot sync the top-level root collection directly"
             )
-          else
-            Future.successful(Right(currentId -> accBelowRoot.toVector))
+          )
 
         case Some(parentId) if knownRoot.contains(parentId) =>
-          Future.successful(
-            Right(parentId -> ((currentId -> current) :: accBelowRoot).toVector)
+          EitherT.rightT[Future, IconikSyncError](
+            parentId -> ((currentId -> current) :: accBelowRoot).toVector
           )
 
         case Some(parentId) if visited.contains(parentId) =>
-          Future.successful(
-            Left(
-              SyncInvalidHierarchy(leafId, "Cycle detected in Iconik hierarchy")
-            )
+          EitherT.leftT[Future, (String, Vector[(String, IconikCollection)])](
+            SyncInvalidHierarchy(leafId, "Cycle detected in Iconik hierarchy")
           )
 
         case Some(_) if accBelowRoot.size >= maxHierarchyDepth =>
-          Future.successful(
-            Left(
-              SyncInvalidHierarchy(
-                leafId,
-                "Collection exceeds expected Iconik Library hierarchy depth"
-              )
+          EitherT.leftT[Future, (String, Vector[(String, IconikCollection)])](
+            SyncInvalidHierarchy(
+              leafId,
+              "Collection exceeds expected Iconik Library hierarchy depth"
             )
           )
 
         case Some(parentId) =>
-          iconikApiClient.getCollection(parentId, credentials).flatMap {
-            case Left(error) =>
-              Future.successful(Left(SyncIconikError(error)))
-            case Right(None) =>
-              Future.successful(
-                Left(
-                  SyncInvalidHierarchy(
-                    leafId,
-                    s"Ancestor collection $parentId is not visible in Iconik"
-                  )
+          for {
+            parent <- fetchCollection(parentId).subflatMap(
+              _.toRight(
+                SyncInvalidHierarchy(
+                  leafId,
+                  s"Ancestor collection $parentId is not visible in Iconik"
                 )
               )
-            case Right(Some(parent)) =>
-              loop(
-                parentId,
-                parent,
-                (currentId -> current) :: accBelowRoot,
-                visited + parentId
-              )
-          }
+            )
+            result <- loop(
+              parentId,
+              parent,
+              (currentId -> current) :: accBelowRoot,
+              visited + parentId
+            )
+          } yield result
       }
 
     if (knownRoot.contains(leafId))
-      Future.successful(
-        Left(
-          SyncInvalidHierarchy(
-            leafId,
-            "Cannot sync the top-level root collection directly"
-          )
+      EitherT.leftT[Future, (String, Vector[(String, IconikCollection)])](
+        SyncInvalidHierarchy(
+          leafId,
+          "Cannot sync the top-level root collection directly"
         )
       )
     else
@@ -390,40 +458,40 @@ class IconikSyncService[E](
 
   private def verifyLibraryRoot(
       candidateRootId: String
-  ): Future[Either[IconikSyncError, Unit]] =
+  ): SyncResult[Unit] =
     cachedLibraryRoot.get() match {
       case Some(expected) if expected == candidateRootId =>
-        Future.successful(Right(()))
+        EitherT.rightT[Future, IconikSyncError](())
       case Some(_) =>
-        Future.successful(
-          Left(
+        EitherT.leftT[Future, Unit](
+          SyncInvalidHierarchy(
+            candidateRootId,
+            "Collection is outside the Iconik Library root"
+          )
+        )
+      case None =>
+        for {
+          discoveredRoot <- discoverLibraryRootFromStore()
+          _ <- EitherT.cond[Future][IconikSyncError, Unit](
+            discoveredRoot == candidateRootId,
+            (),
             SyncInvalidHierarchy(
               candidateRootId,
               "Collection is outside the Iconik Library root"
             )
           )
-        )
-      case None =>
-        discoverLibraryRootFromStore().map {
-          case Left(error) => Left(error)
-          case Right(discoveredRoot) if discoveredRoot == candidateRootId =>
-            cachedLibraryRoot.compareAndSet(None, Some(discoveredRoot))
-            Right(())
-          case Right(_) =>
-            Left(
-              SyncInvalidHierarchy(
-                candidateRootId,
-                "Collection is outside the Iconik Library root"
-              )
-            )
+        } yield {
+          cachedLibraryRoot.compareAndSet(None, Some(discoveredRoot))
+          ()
         }
     }
 
-  private def discoverLibraryRootFromStore()
-      : Future[Either[IconikSyncError, String]] =
-    liftStore(iconikStore.listWorkingGroups()) match {
-      case Left(error) => Future.successful(Left(error))
-      case Right(groups) =>
+  private def discoverLibraryRootFromStore(): SyncResult[String] =
+    for {
+      groups <- EitherT.fromEither[Future](
+        liftStore(iconikStore.listWorkingGroups())
+      )
+      rootId <- EitherT[Future, IconikSyncError, String](
         Future
           .traverse(groups)(group =>
             iconikApiClient.getCollection(group.id, credentials)
@@ -460,7 +528,8 @@ class IconikSyncService[E](
                 )
             }
           }
-    }
+      )
+    } yield rootId
 
   private def classify(
       id: String,
@@ -537,54 +606,49 @@ class IconikSyncService[E](
     }
   }
 
-  private def applyResolved(
+  private def planResolved(
       resolved: ResolvedEntity,
       stored: StoredState
-  ): Future[Either[IconikSyncError, IconikSyncResult]] =
+  ): SyncResult[SyncPlan] =
     resolved match {
       case ResolvedWorkingGroup(id, title) =>
         val target = IconikWorkingGroup(id, title)
-        val action = stored.workingGroup match {
-          case None =>
-            iconikStore.upsertWorkingGroup(target)
-            "created"
-          case Some(existing) if existing == target =>
-            "unchanged"
-          case Some(_) =>
-            iconikStore.upsertWorkingGroup(target)
-            "updated"
+        val steps = planCollectionChange(
+          "working_group",
+          id,
+          stored.workingGroup,
+          Some(target)
+        ) {
+          Right(iconikStore.upsertWorkingGroup(target))
         }
-        Future.successful(
-          Right(IconikSyncResult(id, "working_group", action))
+        EitherT.rightT[Future, IconikSyncError](
+          SyncPlan(id, "working_group", steps)
         )
 
       case ResolvedCommission(id, title, wgId, wgTitle, year) =>
-        ensureWorkingGroupExists(wgId, wgTitle) match {
-          case Left(error) => Future.successful(Left(error))
-          case Right(()) =>
-            val effectiveYear = year.orElse(stored.commission.flatMap(_.year))
-            val target = IconikCommission(wgId, id, title, effectiveYear)
-            val reparented =
-              stored.commission.exists(_.workingGroupId != wgId)
-
-            if (!reparented) {
-              val action = stored.commission match {
-                case None =>
-                  iconikStore.upsertCommission(target)
-                  "created"
-                case Some(existing) if existing == target =>
-                  "unchanged"
-                case Some(_) =>
-                  iconikStore.upsertCommission(target)
-                  "updated"
-              }
-              Future.successful(
-                Right(IconikSyncResult(id, "commission", action))
-              )
+        for {
+          parentSteps <- EitherT.fromEither[Future](
+            planWorkingGroupIfMissing(wgId, wgTitle)
+          )
+          target = IconikCommission(wgId, id, title, year)
+          reparented = stored.commission.exists(_.workingGroupId != wgId)
+          plan <-
+            if (reparented) {
+              planReparentedCommission(target, stored.commission)
             } else {
-              syncReparentedCommission(target)
+              val steps = planCollectionChange(
+                "commission",
+                id,
+                stored.commission,
+                Some(target)
+              ) {
+                Right(iconikStore.upsertCommission(target))
+              }
+              EitherT.rightT[Future, IconikSyncError](
+                SyncPlan(id, "commission", steps)
+              )
             }
-        }
+        } yield plan.copy(steps = parentSteps ++ plan.steps)
 
       case ResolvedProject(
             id,
@@ -595,185 +659,253 @@ class IconikSyncService[E](
             wgTitle,
             commYear
           ) =>
-        val parentsResult = for {
-          _ <- ensureWorkingGroupExists(wgId, wgTitle)
-          _ <- ensureCommissionExists(commId, commTitle, wgId, commYear)
-        } yield ()
-
-        parentsResult match {
-          case Left(error) => Future.successful(Left(error))
-          case Right(()) =>
-            syncProjectAndAtoms(id, title, commId, wgId, stored.project)
-        }
+        for {
+          workingGroupSteps <- EitherT.fromEither[Future](
+            planWorkingGroupIfMissing(wgId, wgTitle)
+          )
+          commissionSteps <- EitherT.fromEither[Future](
+            planCommissionIfMissing(commId, commTitle, wgId, commYear)
+          )
+          plan <- planProjectAndAtoms(id, title, commId, wgId, stored.project)
+        } yield plan.copy(steps =
+          workingGroupSteps ++ commissionSteps ++ plan.steps
+        )
     }
 
-  private def syncReparentedCommission(
-      target: IconikCommission
-  ): Future[Either[IconikSyncError, IconikSyncResult]] =
-    liftStore(iconikStore.getProjectsByCommissionId(target.id)) match {
-      case Left(error) => Future.successful(Left(error))
-      case Right(childProjects) =>
-        val staleProjects =
-          childProjects.filter(_.workingGroupId != target.workingGroupId)
-        val staleProjectIds = staleProjects.map(_.id).toSet
-
-        withLinkedAtoms { atoms =>
-          val blockingAtoms = atoms
-            .filter { atom =>
-              atom.projectId.exists(staleProjectIds.contains) ||
-              (atom.commissionId.contains(target.id) &&
-                !atom.workingGroupId.contains(target.workingGroupId))
-            }
-            .map(_.atomId)
-            .distinct
-            .sorted
-
-          if (blockingAtoms.nonEmpty) {
-            Future.successful(
-              Left(
-                SyncCascadeBlocked(
-                  id = target.id,
-                  entityType = "commission",
-                  message =
-                    "Reparenting commission requires updating child projects and atoms; sync child projects first",
-                  blockingChildIds = staleProjects.map(_.id).sorted,
-                  blockingAtomIds = blockingAtoms
-                )
-              )
-            )
-          } else {
-            staleProjects.foreach { project =>
-              iconikStore.upsertProject(
-                project.copy(workingGroupId = target.workingGroupId)
-              )
-            }
-            iconikStore.upsertCommission(target)
-            Future.successful(
-              Right(
-                IconikSyncResult(
-                  id = target.id,
-                  entityType = "commission",
-                  action = "updated",
-                  updatedChildIds = staleProjects.map(_.id).sorted
-                )
-              )
-            )
-          }
+  private def planReparentedCommission(
+      target: IconikCommission,
+      existing: Option[IconikCommission]
+  ): SyncResult[SyncPlan] =
+    for {
+      childProjects <- EitherT.fromEither[Future](
+        liftStore(iconikStore.getProjectsByCommissionId(target.id))
+      )
+      staleProjects =
+        childProjects.filter(_.workingGroupId != target.workingGroupId)
+      staleProjectIds = staleProjects.map(_.id).toSet
+      atoms <- linkedAtoms
+      atomIdsPreventingSync = atoms
+        .filter { atom =>
+          atom.projectId.exists(staleProjectIds.contains) ||
+          (atom.commissionId.contains(target.id) &&
+            !atom.workingGroupId.contains(target.workingGroupId))
         }
+        .map(_.atomId)
+        .distinct
+        .sorted
+      _ <- EitherT.cond[Future][IconikSyncError, Unit](
+        atomIdsPreventingSync.isEmpty,
+        (),
+        SyncCascadeBlocked(
+          id = target.id,
+          entityType = "commission",
+          message =
+            "Reparenting commission requires updating child projects and atoms; sync child projects first",
+          blockingChildIds = staleProjects.map(_.id).sorted,
+          atomIdsPreventingSync = atomIdsPreventingSync
+        )
+      )
+    } yield {
+      val childSteps = staleProjects.flatMap { project =>
+        val updated = project.copy(workingGroupId = target.workingGroupId)
+        planCollectionChange(
+          "project",
+          project.id,
+          Some(project),
+          Some(updated)
+        ) {
+          persistProject(Some(project), updated)
+        }
+      }
+      val commissionSteps =
+        planCollectionChange("commission", target.id, existing, Some(target)) {
+          Right(iconikStore.upsertCommission(target))
+        }
+      SyncPlan(
+        target.id,
+        "commission",
+        childSteps ++ commissionSteps
+      )
     }
 
-  private def syncProjectAndAtoms(
+  private def planProjectAndAtoms(
       projectId: String,
       title: String,
       commissionId: String,
       workingGroupId: String,
       existingProject: Option[IconikProject]
-  ): Future[Either[IconikSyncError, IconikSyncResult]] =
-    withLinkedAtoms { atoms =>
+  ): SyncResult[SyncPlan] =
+    linkedAtoms.map { atoms =>
       val staleAtomRefs = atoms.filter { atom =>
         atom.projectId.contains(projectId) &&
         (!atom.commissionId.contains(commissionId) ||
           !atom.workingGroupId.contains(workingGroupId))
       }
 
-      Future
-        .traverse(staleAtomRefs) { ref =>
-          atomStore
-            .updateProjectParents(ref, projectId, commissionId, workingGroupId)
-            .map(_.map(updated => if (updated) Some(ref.atomId) else None))
-        }
-        .map { results =>
-          sequence(results).map { maybeIds =>
-            val updatedAtomIds = maybeIds.flatten.distinct.sorted
-            val target = existingProject match {
-              case Some(existing) =>
-                existing.copy(
-                  title = title,
-                  commissionId = commissionId,
-                  workingGroupId = workingGroupId
-                )
-              case None =>
-                IconikProject(
-                  id = projectId,
-                  title = title,
-                  status = "CREATED",
-                  workingGroupId = workingGroupId,
-                  commissionId = commissionId,
-                  masterPlaceholderId = None,
-                  createdAt = Some(
-                    LocalDateTime
-                      .now(ZoneOffset.UTC)
-                      .format(DateTimeFormatter.ISO_DATE_TIME)
-                  )
-                )
-            }
-
-            val action = existingProject match {
-              case None =>
-                iconikStore.upsertProject(target)
-                "created"
-              case Some(existing) if existing == target =>
-                if (updatedAtomIds.nonEmpty) "updated" else "unchanged"
-              case Some(_) =>
-                iconikStore.upsertProject(target)
-                "updated"
-            }
-
-            IconikSyncResult(
-              id = projectId,
-              entityType = "project",
-              action = action,
-              updatedAtomIds = updatedAtomIds
+      val atomChanges = staleAtomRefs.map { ref =>
+        val change = IconikSyncChange(
+          id = ref.atomId,
+          entityType = "atom",
+          action = "updated",
+          fields = changedFields(
+            Json.obj(
+              "commissionId" -> ref.commissionId,
+              "workingGroupId" -> ref.workingGroupId,
+              "revision" -> ref.revision
+            ),
+            Json.obj(
+              "commissionId" -> commissionId,
+              "workingGroupId" -> workingGroupId,
+              "revision" -> (ref.revision + 1)
             )
-          }
-        }
+          ),
+          isPublished = Some(ref.isPublished)
+        )
+        PendingChange(
+          change,
+          () =>
+            atomStore
+              .updateProjectParents(
+                ref,
+                projectId,
+                commissionId,
+                workingGroupId
+              )
+              .map(
+                _.left
+                  .map(SyncDynamoError)
+                  .flatMap(updated =>
+                    Either.cond(
+                      updated,
+                      Some(change),
+                      SyncWriteConflict(ref.atomId, "atom")
+                    )
+                  )
+              )
+        )
+      }
+      val target = existingProject match {
+        case Some(existing) =>
+          existing.copy(
+            title = title,
+            commissionId = commissionId,
+            workingGroupId = workingGroupId
+          )
+        case None =>
+          IconikProject(
+            id = projectId,
+            title = title,
+            status = "CREATED",
+            workingGroupId = workingGroupId,
+            commissionId = commissionId,
+            masterPlaceholderId = None,
+            createdAt = Some(
+              LocalDateTime
+                .now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_DATE_TIME)
+            )
+          )
+      }
+      val projectSteps = planCollectionChange(
+        "project",
+        projectId,
+        existingProject,
+        Some(target)
+      ) {
+        persistProject(existingProject, target)
+      }
+      SyncPlan(projectId, "project", List(atomChanges) ++ projectSteps)
     }
 
-  private def ensureWorkingGroupExists(
+  private def planWorkingGroupIfMissing(
       wgId: String,
       wgTitle: String
-  ): Either[IconikSyncError, Unit] =
+  ): Either[IconikSyncError, List[List[PendingChange]]] =
     liftStore(iconikStore.getWorkingGroup(wgId)).map {
-      case Some(_) => ()
+      case Some(_) => Nil
       case None =>
-        iconikStore.upsertWorkingGroup(IconikWorkingGroup(wgId, wgTitle))
+        val target = IconikWorkingGroup(wgId, wgTitle)
+        planCollectionChange("working_group", wgId, None, Some(target)) {
+          Right(iconikStore.upsertWorkingGroup(target))
+        }
     }
 
-  private def ensureCommissionExists(
+  private def planCommissionIfMissing(
       commId: String,
       commTitle: String,
       wgId: String,
       year: Option[String]
-  ): Either[IconikSyncError, Unit] =
+  ): Either[IconikSyncError, List[List[PendingChange]]] =
     liftStore(iconikStore.getCommission(commId)).map {
-      case Some(_) => ()
+      case Some(_) => Nil
       case None =>
-        iconikStore.upsertCommission(
-          IconikCommission(wgId, commId, commTitle, year)
-        )
+        val target = IconikCommission(wgId, commId, commTitle, year)
+        planCollectionChange("commission", commId, None, Some(target)) {
+          Right(iconikStore.upsertCommission(target))
+        }
     }
 
-  private def withLinkedAtoms(
-      f: List[AtomIconikRef] => Future[
-        Either[IconikSyncError, IconikSyncResult]
-      ]
-  ): Future[Either[IconikSyncError, IconikSyncResult]] =
-    atomStore.listLinkedAtoms().flatMap {
-      case Left(error)  => Future.successful(Left(SyncDynamoError(error)))
-      case Right(atoms) => f(atoms)
+  private def planCollectionChange[A: Writes](
+      entityType: String,
+      id: String,
+      before: Option[A],
+      after: Option[A]
+  )(write: => Either[IconikSyncError, Unit]): List[List[PendingChange]] =
+    if (before == after) Nil
+    else {
+      def fields(value: Option[A]): JsObject =
+        value.map(v => Json.toJson(v).as[JsObject]).getOrElse(Json.obj())
+
+      val change = IconikSyncChange(
+        id,
+        entityType,
+        if (before.isEmpty) "created"
+        else if (after.isEmpty) "deleted"
+        else "updated",
+        changedFields(fields(before), fields(after))
+      )
+      List(
+        List(
+          PendingChange(
+            change,
+            () =>
+              Future {
+                write.map(_ => Some(change))
+              }
+          )
+        )
+      )
     }
+
+  private def persistProject(
+      before: Option[IconikProject],
+      after: IconikProject
+  ): Either[IconikSyncError, Unit] =
+    liftStore(iconikStore.syncProject(before, after)).flatMap(updated =>
+      Either.cond(updated, (), SyncWriteConflict(after.id, "project"))
+    )
+
+  private def changedFields(before: JsObject, after: JsObject): JsObject =
+    JsObject((before.keys ++ after.keys).toSeq.sorted.flatMap { field =>
+      val oldValue = before.value.getOrElse(field, JsNull)
+      val newValue = after.value.getOrElse(field, JsNull)
+      Option.when(oldValue != newValue)(
+        field -> Json.obj("before" -> oldValue, "after" -> newValue)
+      )
+    })
+
+  private def linkedAtoms: SyncResult[List[AtomIconikRef]] =
+    EitherT(atomStore.listLinkedAtoms()).leftMap(SyncDynamoError)
+
+  private def fetchCollection(
+      id: String
+  ): SyncResult[Option[IconikCollection]] =
+    EitherT(iconikApiClient.getCollection(id, credentials))
+      .leftMap(SyncIconikError)
 
   private def liftStore[A](
       result: Either[E, A]
   ): Either[IconikSyncError, A] =
     result.left.map(err => SyncDynamoError(DynamoFailure(err.toString)))
 
-  private def sequence[A](
-      results: List[Either[DynamoFailure, A]]
-  ): Either[IconikSyncError, List[A]] =
-    results.foldRight(Right(Nil): Either[IconikSyncError, List[A]]) {
-      case (Right(value), Right(acc)) => Right(value :: acc)
-      case (Left(error), _)           => Left(SyncDynamoError(error))
-      case (_, Left(error))           => Left(error)
-    }
 }
