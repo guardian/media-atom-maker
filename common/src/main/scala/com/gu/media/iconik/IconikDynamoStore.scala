@@ -4,6 +4,7 @@ import com.gu.media.aws.DynamoAccess
 import com.gu.media.logging.Logging
 import org.scanamo.{DynamoFormat, DynamoReadError, Scanamo, ScanamoAsync, Table}
 import org.scanamo.syntax._
+import org.scanamo.{ConditionNotMet, ScanamoError}
 
 import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
@@ -89,4 +90,48 @@ class IconikDynamoStoreWithParentIndex[
   ): Either[DynamoReadError, List[DynamoTableModel]] = sequence(
     scanamo.exec(parentIdIndex.query(parentIndexConfig.indexKey === id))
   )
+}
+
+class IconikDynamoProjectStore(
+    aws: DynamoAccess,
+    tableName: String,
+    parentIndexConfig: IndexConfig
+) extends IconikDynamoStoreWithParentIndex[IconikProject](
+      aws,
+      tableName,
+      parentIndexConfig
+    )
+    with IconikProjectStore[DynamoReadError] {
+
+  override def createIfAbsent(
+      project: IconikProject
+  ): Either[DynamoReadError, Boolean] =
+    conditionalResult(
+      scanamo.exec(table.when(attributeNotExists("id")).put(project))
+    )
+
+  override def updateHierarchy(
+      before: IconikProject,
+      after: IconikProject
+  ): Either[DynamoReadError, Boolean] = {
+    val condition = attributeExists("id")
+      .and("title" === before.title)
+      .and("commissionId" === before.commissionId)
+      .and("workingGroupId" === before.workingGroupId)
+    val update = set("title", after.title)
+      .and(set("commissionId", after.commissionId))
+      .and(set("workingGroupId", after.workingGroupId))
+    conditionalResult(
+      scanamo.exec(table.when(condition).update("id" === before.id, update))
+    )
+  }
+
+  private def conditionalResult[A](
+      result: Either[ScanamoError, A]
+  ): Either[DynamoReadError, Boolean] =
+    result match {
+      case Right(_)                     => Right(true)
+      case Left(ConditionNotMet(_))     => Right(false)
+      case Left(error: DynamoReadError) => Left(error)
+    }
 }

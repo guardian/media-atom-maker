@@ -30,7 +30,7 @@ class IconikValidationServiceTest extends AnyFlatSpec with Matchers {
     val workingGroup =
       IconikWorkingGroup("working-group-1", "Stored working group")
     val projectStore =
-      new IconikInMemoryStoreWithParentIndex[IconikProject, DynamoReadError]()
+      new IconikInMemoryProjectStore[DynamoReadError]()
     val commissionStore = new IconikInMemoryStoreWithParentIndex[
       IconikCommission,
       DynamoReadError

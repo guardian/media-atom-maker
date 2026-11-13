@@ -20,9 +20,14 @@ case class AtomIconikRef(
     isLegacyEncoding: Boolean,
     workingGroupId: Option[String],
     commissionId: Option[String],
-    projectId: Option[String]
+    projectId: Option[String],
+    revision: Long = 0L
 )
 
+/** Used for repairing Iconik references with a minimal set of fields. Not part
+  * of the publication flow. Scanamo is not used because its scan API lacks
+  * field projection and parallel segments.
+  */
 trait IconikAtomStore {
   def listLinkedAtoms(): Future[Either[DynamoFailure, List[AtomIconikRef]]]
 
@@ -47,7 +52,9 @@ class DynamoIconikAtomStore(
     "#data" -> "data",
     "#media" -> "media",
     "#metadata" -> "metadata",
-    "#iconik" -> "iconik"
+    "#iconik" -> "iconik",
+    "#changes" -> "contentChangeDetails",
+    "#revision" -> "revision"
   ).asJava
 
   override def listLinkedAtoms()
@@ -88,26 +95,39 @@ class DynamoIconikAtomStore(
       "#iconik" -> "iconik",
       "#projectId" -> "projectId",
       "#commissionId" -> "commissionId",
-      "#workingGroupId" -> "workingGroupId"
+      "#workingGroupId" -> "workingGroupId",
+      "#changes" -> "contentChangeDetails",
+      "#revision" -> "revision"
     )
     val names =
       if (ref.isLegacyEncoding) baseNames
       else baseNames + ("#media" -> "media")
 
+    // Advance revisions so stale editor saves cannot restore the old hierarchy.
     val request = UpdateItemRequest
       .builder()
       .tableName(tableName)
       .key(Map("id" -> str(ref.atomId)).asJava)
       .updateExpression(
-        s"SET $iconikPath.#commissionId = :commissionId, $iconikPath.#workingGroupId = :workingGroupId"
+        s"SET $iconikPath.#commissionId = :commissionId, $iconikPath.#workingGroupId = :workingGroupId, #changes.#revision = :newRevision"
       )
-      .conditionExpression(s"$iconikPath.#projectId = :projectId")
+      .conditionExpression(
+        s"$iconikPath.#projectId = :projectId AND #changes.#revision = :revision"
+      )
       .expressionAttributeNames(names.asJava)
       .expressionAttributeValues(
         Map(
           ":projectId" -> str(projectId),
           ":commissionId" -> str(commissionId),
-          ":workingGroupId" -> str(workingGroupId)
+          ":workingGroupId" -> str(workingGroupId),
+          ":revision" -> AttributeValue
+            .builder()
+            .n(ref.revision.toString)
+            .build(),
+          ":newRevision" -> AttributeValue
+            .builder()
+            .n((ref.revision + 1).toString)
+            .build()
         ).asJava
       )
       .build()
@@ -119,7 +139,7 @@ class DynamoIconikAtomStore(
       .recover {
         case error
             if unwrap(error).isInstanceOf[ConditionalCheckFailedException] =>
-          // Skip if an editor concurrently changed or cleared the atom's project assignment
+          // A stale snapshot must not overwrite an editor's changes.
           Right(false)
         case NonFatal(error) =>
           Left(
@@ -154,7 +174,7 @@ class DynamoIconikAtomStore(
       .segment(segment)
       .totalSegments(scanSegments)
       .projectionExpression(
-        "#id, #data.#media.#metadata.#iconik, #data.#metadata.#iconik"
+        "#id, #data.#media.#metadata.#iconik, #data.#metadata.#iconik, #changes.#revision"
       )
       .filterExpression(
         "attribute_exists(#data.#media.#metadata.#iconik) OR attribute_exists(#data.#metadata.#iconik)"
@@ -215,7 +235,16 @@ class DynamoIconikAtomStore(
               isLegacyEncoding = isLegacy,
               workingGroupId = strField(iconik, "workingGroupId"),
               commissionId = strField(iconik, "commissionId"),
-              projectId = strField(iconik, "projectId")
+              projectId = strField(iconik, "projectId"),
+              revision = mapField(item, "contentChangeDetails")
+                .flatMap(changes => Option(changes.get("revision")))
+                .flatMap(value => Option(value.n()))
+                .map(_.toLong)
+                .getOrElse(
+                  throw new IllegalStateException(
+                    s"Missing revision on atom $id"
+                  )
+                )
             )
           }
       }
