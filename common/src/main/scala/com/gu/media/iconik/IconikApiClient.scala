@@ -37,15 +37,16 @@ class IconikApiClient(
         response.status match {
           case NOT_FOUND => Right(None)
           case OK =>
-            response.json.validate[IconikCollection].asEither match {
-              case Right(collection) => Right(Some(collection))
-              case Left(_) =>
-                Left(
-                  IconikRequestFailure(
-                    s"Iconik returned an invalid collection for $entityId"
-                  )
+            response.json
+              .validate[IconikCollection]
+              .asEither
+              .left
+              .map(_ =>
+                IconikRequestFailure(
+                  s"Iconik returned an invalid collection for $entityId"
                 )
-            }
+              )
+              .map(Some(_))
           case status =>
             Left(
               IconikRequestFailure(
