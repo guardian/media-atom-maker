@@ -19,7 +19,7 @@ type Props = {
   fieldName: string;
   placeholder: string;
   fieldValue: string;
-  rawFieldValue: number | string | null | undefined;
+  rawFieldValue?: number | string | null;
   notification: FieldNotification | null;
   hasError: (props: Props) => boolean;
   displayPlaceholder: (placeholder: string, fieldValue: string) => boolean;
