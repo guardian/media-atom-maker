@@ -3,9 +3,11 @@ package com.gu.media.iconik
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
 import software.amazon.awssdk.services.dynamodb.model.{
   AttributeValue,
-  ConditionalCheckFailedException,
   ScanRequest,
-  UpdateItemRequest
+  TransactionCanceledException,
+  TransactWriteItem,
+  TransactWriteItemsRequest,
+  Update
 }
 
 import java.util.concurrent.CompletionException
@@ -32,7 +34,7 @@ trait IconikAtomStore {
   def listLinkedAtoms(): Future[Either[DynamoFailure, List[AtomIconikRef]]]
 
   def updateProjectParents(
-      ref: AtomIconikRef,
+      refs: List[AtomIconikRef],
       projectId: String,
       commissionId: String,
       workingGroupId: String
@@ -78,17 +80,63 @@ class DynamoIconikAtomStore(
   }
 
   override def updateProjectParents(
-      ref: AtomIconikRef,
+      refs: List[AtomIconikRef],
       projectId: String,
       commissionId: String,
       workingGroupId: String
   ): Future[Either[DynamoFailure, Boolean]] = {
+    if (refs.isEmpty) Future.successful(Right(true))
+    else {
+      val writes = refs.map { ref =>
+        TransactWriteItem
+          .builder()
+          .update(
+            updateRequest(
+              ref,
+              projectId,
+              commissionId,
+              workingGroupId
+            )
+          )
+          .build()
+      }
+      val request = TransactWriteItemsRequest
+        .builder()
+        .transactItems(
+          writes.asJava
+        )
+        .build()
+
+      dynamoDbAsync
+        .transactWriteItems(request)
+        .asScala
+        .map(_ => Right(true))
+        .recover {
+          case error if hasConditionalCheckFailure(unwrap(error)) =>
+            // A stale snapshot must not overwrite an editor's changes.
+            Right(false)
+          case NonFatal(error) =>
+            Left(
+              DynamoFailure(
+                s"Failed to update Iconik hierarchy on atom ${refs.head.atomId}",
+                Some(unwrap(error))
+              )
+            )
+        }
+    }
+  }
+
+  private def updateRequest(
+      ref: AtomIconikRef,
+      projectId: String,
+      commissionId: String,
+      workingGroupId: String
+  ): Update = {
     val tableName =
       if (ref.isPublished) publishedTableName else previewTableName
     val iconikPath =
       if (ref.isLegacyEncoding) "#data.#metadata.#iconik"
       else "#data.#media.#metadata.#iconik"
-
     val baseNames = Map(
       "#data" -> "data",
       "#metadata" -> "metadata",
@@ -102,53 +150,54 @@ class DynamoIconikAtomStore(
     val names =
       if (ref.isLegacyEncoding) baseNames
       else baseNames + ("#media" -> "media")
+    val values = Map.newBuilder[String, AttributeValue]
+    values += ":revision" -> number(ref.revision)
+    values += ":newRevision" -> number(ref.revision + 1)
 
-    // Advance revisions so stale editor saves cannot restore the old hierarchy.
-    val request = UpdateItemRequest
+    val expectedFields = List(
+      s"$iconikPath.#projectId" -> (":currentProjectId", ref.projectId),
+      s"$iconikPath.#commissionId" -> (
+        ":currentCommissionId",
+        ref.commissionId
+      ),
+      s"$iconikPath.#workingGroupId" -> (
+        ":currentWorkingGroupId",
+        ref.workingGroupId
+      )
+    )
+    val fieldConditions = expectedFields.map {
+      case (path, (valueName, value)) =>
+        value match {
+          case Some(current) =>
+            values += valueName -> str(current)
+            s"$path = $valueName"
+          case None => s"attribute_not_exists($path)"
+        }
+    }
+    val shouldUpdateParents = ref.projectId.contains(projectId)
+    val parentUpdates =
+      if (shouldUpdateParents) {
+        values += ":commissionId" -> str(commissionId)
+        values += ":workingGroupId" -> str(workingGroupId)
+        List(
+          s"$iconikPath.#commissionId = :commissionId",
+          s"$iconikPath.#workingGroupId = :workingGroupId"
+        )
+      } else Nil
+
+    Update
       .builder()
       .tableName(tableName)
       .key(Map("id" -> str(ref.atomId)).asJava)
       .updateExpression(
-        s"SET $iconikPath.#commissionId = :commissionId, $iconikPath.#workingGroupId = :workingGroupId, #changes.#revision = :newRevision"
+        s"SET ${(parentUpdates :+ "#changes.#revision = :newRevision").mkString(", ")}"
       )
       .conditionExpression(
-        s"$iconikPath.#projectId = :projectId AND #changes.#revision = :revision"
+        (fieldConditions :+ "#changes.#revision = :revision").mkString(" AND ")
       )
       .expressionAttributeNames(names.asJava)
-      .expressionAttributeValues(
-        Map(
-          ":projectId" -> str(projectId),
-          ":commissionId" -> str(commissionId),
-          ":workingGroupId" -> str(workingGroupId),
-          ":revision" -> AttributeValue
-            .builder()
-            .n(ref.revision.toString)
-            .build(),
-          ":newRevision" -> AttributeValue
-            .builder()
-            .n((ref.revision + 1).toString)
-            .build()
-        ).asJava
-      )
+      .expressionAttributeValues(values.result().asJava)
       .build()
-
-    dynamoDbAsync
-      .updateItem(request)
-      .asScala
-      .map(_ => Right(true))
-      .recover {
-        case error
-            if unwrap(error).isInstanceOf[ConditionalCheckFailedException] =>
-          // A stale snapshot must not overwrite an editor's changes.
-          Right(false)
-        case NonFatal(error) =>
-          Left(
-            DynamoFailure(
-              s"Failed to update Iconik hierarchy on atom ${ref.atomId}",
-              Some(unwrap(error))
-            )
-          )
-      }
   }
 
   private def scanTable(
@@ -265,6 +314,19 @@ class DynamoIconikAtomStore(
 
   private def str(value: String): AttributeValue =
     AttributeValue.builder().s(value).build()
+
+  private def number(value: Long): AttributeValue =
+    AttributeValue.builder().n(value.toString).build()
+
+  private def hasConditionalCheckFailure(error: Throwable): Boolean =
+    error match {
+      case cancelled: TransactionCanceledException =>
+        Option(cancelled.cancellationReasons())
+          .exists(
+            _.asScala.exists(_.code() == "ConditionalCheckFailed")
+          )
+      case _ => false
+    }
 
   private def unwrap(error: Throwable): Throwable = error match {
     case completion: CompletionException if completion.getCause != null =>

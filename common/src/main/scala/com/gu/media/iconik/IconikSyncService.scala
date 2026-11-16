@@ -96,8 +96,8 @@ class IconikSyncService[E](
   private type SyncResult[A] = EitherT[Future, IconikSyncError, A]
 
   private case class PendingChange(
-      change: IconikSyncChange,
-      run: () => Future[Either[IconikSyncError, Option[IconikSyncChange]]]
+      changes: List[IconikSyncChange],
+      run: () => Future[Either[IconikSyncError, List[IconikSyncChange]]]
   )
 
   /** Keeps preview read-only and orders writes to preserve hierarchy
@@ -108,7 +108,7 @@ class IconikSyncService[E](
       entityType: String,
       steps: List[List[PendingChange]]
   ) {
-    def changes: List[IconikSyncChange] = steps.flatten.map(_.change)
+    def changes: List[IconikSyncChange] = steps.flatten.flatMap(_.changes)
 
     def result(
         changes: List[IconikSyncChange],
@@ -736,54 +736,71 @@ class IconikSyncService[E](
       existingProject: Option[IconikProject]
   ): SyncResult[SyncPlan] =
     linkedAtoms.map { atoms =>
-      val staleAtomRefs = atoms.filter { atom =>
-        atom.projectId.contains(projectId) &&
-        (!atom.commissionId.contains(commissionId) ||
-          !atom.workingGroupId.contains(workingGroupId))
-      }
+      val staleAtomIds = atoms
+        .filter { atom =>
+          atom.projectId.contains(projectId) &&
+          (!atom.commissionId.contains(commissionId) ||
+            !atom.workingGroupId.contains(workingGroupId))
+        }
+        .map(_.atomId)
+        .toSet
 
-      val atomChanges = staleAtomRefs.map { ref =>
-        val change = IconikSyncChange(
-          id = ref.atomId,
-          entityType = "atom",
-          action = "updated",
-          fields = changedFields(
-            Json.obj(
-              "commissionId" -> ref.commissionId,
-              "workingGroupId" -> ref.workingGroupId,
-              "revision" -> ref.revision
-            ),
-            Json.obj(
-              "commissionId" -> commissionId,
-              "workingGroupId" -> workingGroupId,
-              "revision" -> (ref.revision + 1)
+      val atomChanges = atoms
+        .filter(ref => staleAtomIds.contains(ref.atomId))
+        .groupBy(_.atomId)
+        .toList
+        .sortBy(_._1)
+        .map { case (atomId, atomRefs) =>
+          val refs = atomRefs.sortBy(_.isPublished)
+          val changes = refs.map { ref =>
+            val updateParents = ref.projectId.contains(projectId)
+            IconikSyncChange(
+              id = ref.atomId,
+              entityType = "atom",
+              action = "updated",
+              fields = changedFields(
+                Json.obj(
+                  "commissionId" -> ref.commissionId,
+                  "workingGroupId" -> ref.workingGroupId,
+                  "revision" -> ref.revision
+                ),
+                Json.obj(
+                  "commissionId" -> (
+                    if (updateParents) Some(commissionId) else ref.commissionId
+                  ),
+                  "workingGroupId" -> (
+                    if (updateParents) Some(workingGroupId)
+                    else ref.workingGroupId
+                  ),
+                  "revision" -> (ref.revision + 1)
+                )
+              ),
+              isPublished = Some(ref.isPublished)
             )
-          ),
-          isPublished = Some(ref.isPublished)
-        )
-        PendingChange(
-          change,
-          () =>
-            atomStore
-              .updateProjectParents(
-                ref,
-                projectId,
-                commissionId,
-                workingGroupId
-              )
-              .map(
-                _.left
-                  .map(SyncDynamoError)
-                  .flatMap(updated =>
-                    Either.cond(
-                      updated,
-                      Some(change),
-                      SyncWriteConflict(ref.atomId, "atom")
+          }
+          PendingChange(
+            changes,
+            () =>
+              atomStore
+                .updateProjectParents(
+                  refs,
+                  projectId,
+                  commissionId,
+                  workingGroupId
+                )
+                .map(
+                  _.left
+                    .map(SyncDynamoError)
+                    .flatMap(updated =>
+                      Either.cond(
+                        updated,
+                        changes,
+                        SyncWriteConflict(atomId, "atom")
+                      )
                     )
-                  )
-              )
-        )
-      }
+                )
+          )
+        }
       val target = existingProject match {
         case Some(existing) =>
           existing.copy(
@@ -867,10 +884,10 @@ class IconikSyncService[E](
       List(
         List(
           PendingChange(
-            change,
+            List(change),
             () =>
               Future {
-                write.map(_ => Some(change))
+                write.map(_ => List(change))
               }
           )
         )
