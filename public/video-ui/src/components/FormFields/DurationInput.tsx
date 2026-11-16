@@ -3,11 +3,10 @@ import {
   durationToMinAndSecs,
   secondsToDurationStr
 } from '../../util/durationHelpers';
+import FieldNotification from '../../constants/FieldNotification';
 
 const getStateFromProps = (props: Readonly<Props>) => {
-  const dur = props.rawFieldValue || 0;
-
-  const { mins, secs } = durationToMinAndSecs(dur);
+  const { mins, secs } = durationToMinAndSecs(`${props.rawFieldValue ?? ''}`);
 
   return {
     mins: `${mins}`,
@@ -16,24 +15,15 @@ const getStateFromProps = (props: Readonly<Props>) => {
 };
 
 type Props = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateField: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editable: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldName: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  displayPlaceholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  placeholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldValue: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rawFieldValue: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hasError: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  notification: any;
+  editable: boolean;
+  fieldName: string;
+  placeholder: string;
+  fieldValue: string;
+  rawFieldValue: number | string | null | undefined;
+  notification: FieldNotification | null;
+  hasError: (props: Props) => boolean;
+  displayPlaceholder: (placeholder: string, fieldValue: string) => boolean;
+  onUpdateField: (value: number) => void;
 };
 
 type State = {
@@ -88,7 +78,7 @@ class DurationInput extends React.Component<Props, State> {
             }
           >
             {' '}
-            {secondsToDurationStr(this.props.rawFieldValue)}
+            {secondsToDurationStr(`${this.props.rawFieldValue ?? ''}`)}
           </p>
         </div>
       );
@@ -107,8 +97,7 @@ class DurationInput extends React.Component<Props, State> {
         </span>
         <input
           type="text"
-          // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'number'.
-          size="3"
+          size={3}
           className={
             'form__field form__field--inline ' +
             (hasError ? 'form__field--error' : '')
@@ -121,8 +110,7 @@ class DurationInput extends React.Component<Props, State> {
         <span style={{ margin: '0 5px' }}>mins</span>
         <input
           type="text"
-          // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'number'.
-          size="3"
+          size={3}
           className={
             'form__field form__field--inline ' +
             (hasError ? 'form__field--error' : '')
@@ -135,7 +123,7 @@ class DurationInput extends React.Component<Props, State> {
         <span style={{ margin: '0 5px' }}>secs</span>
         {hasError ? (
           <p className="form__message form__message--error">
-            {this.props.notification.message}
+            {this.props.notification?.message}
           </p>
         ) : (
           ''
