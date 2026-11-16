@@ -42,11 +42,12 @@ import play.api.test.Helpers._
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
 import software.amazon.awssdk.services.dynamodb.model.{
   AttributeValue,
-  ConditionalCheckFailedException,
+  CancellationReason,
   ScanRequest,
   ScanResponse,
-  UpdateItemRequest,
-  UpdateItemResponse
+  TransactWriteItemsRequest,
+  TransactWriteItemsResponse,
+  TransactionCanceledException
 }
 import util.AWSConfig
 
@@ -251,7 +252,7 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
     }
   }
 
-  "DynamoIconikAtomStore" should "decode union and legacy atoms and guard preview and published repairs by revision" in {
+  "DynamoIconikAtomStore" should "decode union and legacy atoms and transact guarded preview and published repairs" in {
     implicit val ec: ExecutionContext = ExecutionContext.global
     val client = Mockito.mock(classOf[DynamoDbAsyncClient])
     def str(v: String): AttributeValue = AttributeValue.builder().s(v).build()
@@ -289,7 +290,7 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
       )
     ).asJava
     val publishedItem = (unionItem.asScala.toMap ++ Map(
-      "id" -> str("atom-published"),
+      "id" -> str("atom-union"),
       "contentChangeDetails" -> attrMap("revision" -> number(11))
     )).asJava
 
@@ -334,7 +335,7 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
           revision = 9
         ),
         AtomIconikRef(
-          "atom-published",
+          "atom-union",
           isPublished = true,
           isLegacyEncoding = false,
           Some("wg-1"),
@@ -347,39 +348,84 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
 
     Mockito
       .when(
-        client.updateItem(
-          org.mockito.ArgumentMatchers.any(classOf[UpdateItemRequest])
+        client.transactWriteItems(
+          org.mockito.ArgumentMatchers.any(
+            classOf[TransactWriteItemsRequest]
+          )
         )
       )
       .thenReturn(
-        CompletableFuture.completedFuture(UpdateItemResponse.builder().build()),
-        CompletableFuture.failedFuture[UpdateItemResponse](
-          ConditionalCheckFailedException.builder().message("changed").build()
+        CompletableFuture.completedFuture(
+          TransactWriteItemsResponse.builder().build()
         ),
-        CompletableFuture.completedFuture(UpdateItemResponse.builder().build())
+        CompletableFuture.failedFuture[TransactWriteItemsResponse](
+          TransactionCanceledException
+            .builder()
+            .message("changed")
+            .cancellationReasons(
+              java.util.Collections.singletonList(
+                CancellationReason
+                  .builder()
+                  .code("ConditionalCheckFailed")
+                  .build()
+              )
+            )
+            .build()
+        ),
+        CompletableFuture.completedFuture(
+          TransactWriteItemsResponse.builder().build()
+        )
       )
 
     val refs = scanned.toOption.get
     Await.result(
-      atomStore.updateProjectParents(refs.head, "proj-1", "new-comm", "wg-1"),
+      atomStore.updateProjectParents(
+        List(refs.head),
+        "proj-1",
+        "new-comm",
+        "wg-1"
+      ),
       5.seconds
     ) shouldBe Right(true)
     Await.result(
-      atomStore.updateProjectParents(refs(1), "proj-1", "new-comm", "wg-1"),
+      atomStore.updateProjectParents(
+        List(refs(1)),
+        "proj-1",
+        "new-comm",
+        "wg-1"
+      ),
       5.seconds
     ) shouldBe Right(false)
     Await.result(
-      atomStore.updateProjectParents(refs(2), "proj-1", "new-comm", "wg-1"),
+      atomStore.updateProjectParents(
+        List(refs.head, refs(2)),
+        "proj-1",
+        "new-comm",
+        "wg-1"
+      ),
       5.seconds
     ) shouldBe Right(true)
 
-    val captor = ArgumentCaptor.forClass(classOf[UpdateItemRequest])
-    Mockito.verify(client, Mockito.times(3)).updateItem(captor.capture())
-    val requests = captor.getAllValues.asScala.toList
+    val captor = ArgumentCaptor.forClass(classOf[TransactWriteItemsRequest])
+    Mockito
+      .verify(client, Mockito.times(3))
+      .transactWriteItems(captor.capture())
+    val transactions = captor.getAllValues.asScala.toList
+    transactions.map(_.transactItems().size()) shouldBe List(1, 1, 2)
+    val requests = transactions
+      .flatMap(_.transactItems().asScala)
+      .map(_.update())
     requests.head.updateExpression() should include("#data.#media.#metadata")
     requests(1).updateExpression() should include("#data.#metadata.#iconik")
-    requests.map(_.tableName()) shouldBe List("preview", "preview", "published")
-    requests.zip(List(7L, 9L, 11L)).foreach { case (request, revision) =>
+    requests.map(_.tableName()) shouldBe List(
+      "preview",
+      "preview",
+      "preview",
+      "published"
+    )
+    requests(2).updateExpression() should include("#changes.#revision")
+    requests(3).updateExpression() should include("#data.#media.#metadata")
+    requests.zip(List(7L, 9L, 7L, 11L)).foreach { case (request, revision) =>
       request.conditionExpression() should include(
         "#changes.#revision = :revision"
       )

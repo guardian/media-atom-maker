@@ -24,24 +24,32 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
       Future.successful(Right(refs.toList))
 
     override def updateProjectParents(
-        ref: AtomIconikRef,
+        refsToUpdate: List[AtomIconikRef],
         projectId: String,
         commissionId: String,
         workingGroupId: String
     ): Future[Either[DynamoFailure, Boolean]] = {
       updateCalls.incrementAndGet()
-      val index = refs.indexWhere(r =>
-        r.atomId == ref.atomId && r.isPublished == ref.isPublished
-      )
-      if (
-        index >= 0 && refs(index).projectId
-          .contains(projectId) && refs(index).revision == ref.revision
-      ) {
-        refs(index) = refs(index).copy(
-          commissionId = Some(commissionId),
-          workingGroupId = Some(workingGroupId),
-          revision = ref.revision + 1
+      val indexes = refsToUpdate.map(ref =>
+        refs.indexWhere(r =>
+          r.atomId == ref.atomId && r.isPublished == ref.isPublished
         )
+      )
+      val canUpdate = refsToUpdate.zip(indexes).forall { case (ref, index) =>
+        index >= 0 && refs(index) == ref
+      }
+      if (canUpdate) {
+        refsToUpdate.zip(indexes).foreach { case (ref, index) =>
+          refs(index) = refs(index).copy(
+            commissionId =
+              if (ref.projectId.contains(projectId)) Some(commissionId)
+              else ref.commissionId,
+            workingGroupId =
+              if (ref.projectId.contains(projectId)) Some(workingGroupId)
+              else ref.workingGroupId,
+            revision = ref.revision + 1
+          )
+        }
         Future.successful(Right(true))
       } else {
         Future.successful(Right(false))
@@ -158,8 +166,9 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
         isPublished = false,
         isLegacyEncoding = false,
         Some("wg-1"),
-        Some("comm-old"),
-        Some("proj-1")
+        Some("comm-new"),
+        Some("proj-1"),
+        revision = 8
       ),
       AtomIconikRef(
         "atom-1",
@@ -167,7 +176,8 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
         isLegacyEncoding = false,
         Some("wg-1"),
         Some("comm-old"),
-        Some("proj-1")
+        Some("proj-1"),
+        revision = 7
       )
     )
 
@@ -191,11 +201,15 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
           "atom-1",
           "atom",
           "updated",
-          Json.obj(
-            "commissionId" -> Json
-              .obj("before" -> "comm-old", "after" -> "comm-new"),
-            "revision" -> Json.obj("before" -> 0, "after" -> 1)
-          ),
+          if (ref.isPublished) {
+            Json.obj(
+              "commissionId" -> Json
+                .obj("before" -> "comm-old", "after" -> "comm-new"),
+              "revision" -> Json.obj("before" -> 7, "after" -> 8)
+            )
+          } else {
+            Json.obj("revision" -> Json.obj("before" -> 8, "after" -> 9))
+          },
           Some(ref.isPublished)
         )
       ) :+ IconikSyncChange(
@@ -233,6 +247,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
       Some("comm-new"),
       Some("comm-new")
     )
+    atoms.refs.map(_.revision).toList shouldBe List(9, 8)
     await(service.sync("proj-1")) shouldBe Right(
       IconikSyncResult("proj-1", "project", "unchanged")
     )
@@ -561,7 +576,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     )
     val atoms = new InMemoryAtomStore(List(ref)) {
       override def updateProjectParents(
-          ref: AtomIconikRef,
+          refs: List[AtomIconikRef],
           projectId: String,
           commissionId: String,
           workingGroupId: String
@@ -611,7 +626,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     val failure = DynamoFailure("Atom repair failed")
     val atoms = new InMemoryAtomStore(List(ref)) {
       override def updateProjectParents(
-          ref: AtomIconikRef,
+          refs: List[AtomIconikRef],
           projectId: String,
           commissionId: String,
           workingGroupId: String
