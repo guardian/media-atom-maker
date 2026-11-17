@@ -13,7 +13,11 @@ export type ComposerStage = 'live' | 'preview';
 export type AssetType = 'Audio' | 'Video' | 'Subtitles';
 
 export type Platform =
-  'Youtube' | 'Facebook' | 'Dailymotion' | 'Mainstream' | 'Url';
+  | 'Youtube'
+  | 'Facebook'
+  | 'Dailymotion'
+  | 'Mainstream'
+  | 'Url';
 
 export type Asset = {
   assetType: AssetType;
@@ -461,6 +465,17 @@ export default {
       data: {
         videoFields: cleanVideoData(composerData)
       }
+    });
+  },
+
+  syncComposerPagePath(composerId: string): Promise<{ proposedPath: string }> {
+    const composerUrlBase = getComposerUrl();
+
+    return apiRequest({
+      url: `${composerUrlBase}/api/content/${composerId}/sync-path?timeZone=Europe%2FLondon`,
+      method: 'post',
+      crossOrigin: true,
+      withCredentials: true
     });
   },
 

@@ -36,8 +36,6 @@ export function createVideoPage(
       .then(res => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const composerId = (res as any).data.id;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pagePath = (res as any).data.identifiers.path.data;
 
         const addVideo = VideosApi.addVideoToComposerPage({
           composerId,
@@ -48,16 +46,20 @@ export function createVideoPage(
           ? [VideosApi.preventPublication(composerId), addVideo]
           : [addVideo];
 
-        return Promise.all(postCreation).then(() => {
-          // it takes a little time for the new Composer page to get to CAPI,
-          // so keep trying until success or timeout
-          return ContentApi.getByPath(pagePath, true).then(capiResponse => {
-            return dispatch(
-              // @ts-expect-error TS(2345): Argument of type 'CapiContent | undefined' is not ... Remove this comment to see the full error message
-              addNewlyCreatedVideoUsage(capiResponse.response.content)
+        return Promise.all(postCreation)
+          .then(() => VideosApi.syncComposerPagePath(composerId))
+          .then(({ proposedPath }) => {
+            // it takes a little time for the new Composer page to get to CAPI,
+            // so keep trying until success or timeout
+            return ContentApi.getByPath(proposedPath, true).then(
+              capiResponse => {
+                return dispatch(
+                  // @ts-expect-error TS(2345): Argument of type 'CapiContent | undefined' is not ... Remove this comment to see the full error message
+                  addNewlyCreatedVideoUsage(capiResponse.response.content)
+                );
+              }
             );
           });
-        });
       })
       .catch(error => {
         dispatch(showError('Could not create a video page', error));
