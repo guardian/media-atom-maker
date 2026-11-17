@@ -121,7 +121,7 @@ class IconikSyncService[E](
           .find(c => c.id == id && c.entityType == entityType)
           .map(_.action)
           .getOrElse(
-            if (changes.exists(_.entityType == "atom")) "updated"
+            if (changes.nonEmpty) "updated"
             else "unchanged"
           ),
         updatedChildIds = changes
@@ -631,23 +631,7 @@ class IconikSyncService[E](
             planWorkingGroupIfMissing(wgId, wgTitle)
           )
           target = IconikCommission(wgId, id, title, year)
-          reparented = stored.commission.exists(_.workingGroupId != wgId)
-          plan <-
-            if (reparented) {
-              planReparentedCommission(target, stored.commission)
-            } else {
-              val steps = planCollectionChange(
-                "commission",
-                id,
-                stored.commission,
-                Some(target)
-              ) {
-                Right(iconikStore.upsertCommission(target))
-              }
-              EitherT.rightT[Future, IconikSyncError](
-                SyncPlan(id, "commission", steps)
-              )
-            }
+          plan <- planCommission(target, stored.commission)
         } yield plan.copy(steps = parentSteps ++ plan.steps)
 
       case ResolvedProject(
@@ -672,7 +656,7 @@ class IconikSyncService[E](
         )
     }
 
-  private def planReparentedCommission(
+  private def planCommission(
       target: IconikCommission,
       existing: Option[IconikCommission]
   ): SyncResult[SyncPlan] =
@@ -680,19 +664,23 @@ class IconikSyncService[E](
       childProjects <- EitherT.fromEither[Future](
         liftStore(iconikStore.getProjectsByCommissionId(target.id))
       )
+      childProjectIds = childProjects.map(_.id).toSet
       staleProjects =
         childProjects.filter(_.workingGroupId != target.workingGroupId)
       staleProjectIds = staleProjects.map(_.id).toSet
       atoms <- linkedAtoms
-      atomIdsPreventingSync = atoms
-        .filter { atom =>
-          atom.projectId.exists(staleProjectIds.contains) ||
-          (atom.commissionId.contains(target.id) &&
-            !atom.workingGroupId.contains(target.workingGroupId))
-        }
-        .map(_.atomId)
-        .distinct
-        .sorted
+      blockingAtoms = atoms.filter { atom =>
+        (atom.projectId.exists(staleProjectIds.contains) &&
+          (!atom.commissionId.contains(target.id) ||
+            !atom.workingGroupId.contains(target.workingGroupId))) ||
+        (atom.commissionId.contains(target.id) &&
+          !atom.workingGroupId.contains(target.workingGroupId))
+      }
+      atomIdsPreventingSync = blockingAtoms.map(_.atomId).distinct.sorted
+      blockingChildIds =
+        (staleProjectIds ++ blockingAtoms
+          .flatMap(_.projectId)
+          .filter(childProjectIds.contains)).toList.sorted
       _ <- EitherT.cond[Future][IconikSyncError, Unit](
         atomIdsPreventingSync.isEmpty,
         (),
@@ -701,7 +689,7 @@ class IconikSyncService[E](
           entityType = "commission",
           message =
             "Reparenting commission requires updating child projects and atoms; sync child projects first",
-          blockingChildIds = staleProjects.map(_.id).sorted,
+          blockingChildIds = blockingChildIds,
           atomIdsPreventingSync = atomIdsPreventingSync
         )
       )

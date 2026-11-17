@@ -298,6 +298,7 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
       .when(client.scan(org.mockito.ArgumentMatchers.any(classOf[ScanRequest])))
       .thenAnswer { invocation =>
         val req = invocation.getArgument[ScanRequest](0)
+        req.consistentRead() shouldBe java.lang.Boolean.TRUE
         val items =
           if (req.tableName() == "preview") List(unionItem, legacyItem).asJava
           else List(publishedItem).asJava

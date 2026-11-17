@@ -805,6 +805,134 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     store.getProject("proj-1") shouldBe Right(Some(concurrent))
   }
 
+  it should "reconcile stale child projects and block on stale atoms even when the commission is already current" in {
+    val collections = Map(
+      "root" -> Some(IconikCollection("Multimedia Production", None)),
+      "wg-1" -> Some(IconikCollection("Podcasts", Some("root"))),
+      "wg-2" -> Some(IconikCollection("News Features", Some("root"))),
+      "comm-1" -> Some(IconikCollection("Commission 1", Some("wg-2"))),
+      "proj-current" -> Some(
+        IconikCollection("Project Current", Some("comm-1"))
+      )
+    )
+    val (service, store, atoms) = fixture(
+      collections = collections,
+      initialWorkingGroups = List(
+        IconikWorkingGroup("wg-1", "Podcasts"),
+        IconikWorkingGroup("wg-2", "News Features")
+      ),
+      initialCommissions = List(
+        IconikCommission("wg-2", "comm-1", "Commission 1", None)
+      ),
+      initialProjects = List(
+        IconikProject(
+          "proj-current",
+          "Project Current",
+          "CREATED",
+          "wg-2",
+          "comm-1",
+          None,
+          None
+        ),
+        IconikProject(
+          "proj-stale",
+          "Project Stale",
+          "CREATED",
+          "wg-1",
+          "comm-1",
+          None,
+          None
+        )
+      ),
+      initialAtoms = List(
+        AtomIconikRef(
+          "atom-1",
+          isPublished = false,
+          isLegacyEncoding = false,
+          Some("wg-1"),
+          Some("comm-1"),
+          Some("proj-current")
+        )
+      )
+    )
+
+    await(service.sync("comm-1")) shouldBe Left(
+      SyncCascadeBlocked(
+        id = "comm-1",
+        entityType = "commission",
+        message =
+          "Reparenting commission requires updating child projects and atoms; sync child projects first",
+        blockingChildIds = List("proj-current", "proj-stale"),
+        atomIdsPreventingSync = List("atom-1")
+      )
+    )
+
+    await(service.sync("proj-current")).map(_.updatedAtomIds) shouldBe Right(
+      List("atom-1")
+    )
+    atoms.refs.head.workingGroupId shouldBe Some("wg-2")
+
+    val repaired = await(service.sync("comm-1")).toOption.get
+    repaired.action shouldBe "updated"
+    repaired.updatedChildIds shouldBe List("proj-stale")
+    store.getProject("proj-stale").map(_.map(_.workingGroupId)) shouldBe Right(
+      Some("wg-2")
+    )
+  }
+
+  it should "not block commission reparenting when atoms on a stale project already match the target hierarchy" in {
+    val collections = Map(
+      "root" -> Some(IconikCollection("Multimedia Production", None)),
+      "wg-1" -> Some(IconikCollection("Podcasts", Some("root"))),
+      "wg-2" -> Some(IconikCollection("News Features", Some("root"))),
+      "comm-1" -> Some(IconikCollection("Commission 1", Some("wg-2")))
+    )
+    val initialAtom = AtomIconikRef(
+      "atom-1",
+      isPublished = false,
+      isLegacyEncoding = false,
+      Some("wg-2"),
+      Some("comm-1"),
+      Some("proj-1"),
+      revision = 5
+    )
+    val (service, store, atoms) = fixture(
+      collections = collections,
+      initialWorkingGroups = List(
+        IconikWorkingGroup("wg-1", "Podcasts"),
+        IconikWorkingGroup("wg-2", "News Features")
+      ),
+      initialCommissions = List(
+        IconikCommission("wg-1", "comm-1", "Commission 1", None)
+      ),
+      initialProjects = List(
+        IconikProject(
+          "proj-1",
+          "Project 1",
+          "CREATED",
+          "wg-1",
+          "comm-1",
+          None,
+          None
+        )
+      ),
+      initialAtoms = List(initialAtom)
+    )
+
+    val result = await(service.sync("comm-1")).toOption.get
+    result.action shouldBe "updated"
+    result.updatedChildIds shouldBe List("proj-1")
+    result.updatedAtomIds shouldBe Nil
+    atoms.updateCalls.get() shouldBe 0
+    atoms.refs.toList shouldBe List(initialAtom)
+    store.getProject("proj-1").map(_.map(_.workingGroupId)) shouldBe Right(
+      Some("wg-2")
+    )
+    store.getCommission("comm-1").map(_.map(_.workingGroupId)) shouldBe Right(
+      Some("wg-2")
+    )
+  }
+
   it should "reject collections outside the Iconik Library root" in {
     val collections = Map(
       "root" -> Some(IconikCollection("Multimedia Production", None)),

@@ -220,6 +220,7 @@ class DynamoIconikAtomStore(
     val builder = ScanRequest
       .builder()
       .tableName(tableName)
+      .consistentRead(true)
       .segment(segment)
       .totalSegments(scanSegments)
       .projectionExpression(
