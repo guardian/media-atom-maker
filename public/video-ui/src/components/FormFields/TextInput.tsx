@@ -1,11 +1,12 @@
 import React from 'react';
+import FieldNotification from '../../constants/FieldNotification';
 
 type Props = {
   fieldValue: string;
   editable: boolean;
   fieldName: string;
   maxLength: number;
-  notification: { message: string };
+  notification: FieldNotification | null;
   placeholder: string;
   displayPlaceholder: (placeholder: string, fieldValue: string) => boolean;
   hasError: (props: Props) => boolean;
@@ -67,7 +68,7 @@ export default class TextInput extends React.Component<Props> {
         />
         {hasError ? (
           <p className="form__message form__message--error">
-            {this.props.notification.message}
+            {this.props.notification?.message}
           </p>
         ) : (
           ''
