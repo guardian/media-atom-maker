@@ -468,7 +468,7 @@ export default {
     const composerUrlBase = getComposerUrl();
 
     return apiRequest({
-      url: `${composerUrlBase}/api/content/${composerId}/sync-path?timeZone=Europe%2FLondon`,
+      url: `${composerUrlBase}/api/content/${composerId}/sync-path`,
       method: 'post',
       crossOrigin: true,
       withCredentials: true
