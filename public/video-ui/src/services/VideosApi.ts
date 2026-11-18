@@ -464,6 +464,17 @@ export default {
     });
   },
 
+  syncComposerPagePath(composerId: string): Promise<{ proposedPath: string }> {
+    const composerUrlBase = getComposerUrl();
+
+    return apiRequest({
+      url: `${composerUrlBase}/api/content/${composerId}/sync-path`,
+      method: 'post',
+      crossOrigin: true,
+      withCredentials: true
+    });
+  },
+
   addVideoToComposerPage({
     composerId,
     video
