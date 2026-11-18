@@ -240,6 +240,17 @@ function clientVideoFromServerVideo<
   };
 }
 
+function syncComposerPath(pageId: string) {
+  const composerUrlBase = getComposerUrl();
+
+  return apiRequest({
+    url: `${composerUrlBase}/api/content/${pageId}/sync-path`,
+    method: 'post',
+    crossOrigin: true,
+    withCredentials: true
+  });
+}
+
 export default {
   fetchVideos: (
     search: string,
@@ -436,6 +447,9 @@ export default {
                 videoFields: cleanVideoData(composerData),
                 videoBlock: videoBlock
               }
+            }).then(data => {
+              syncComposerPath(pageId);
+              return data;
             });
           }
 
@@ -461,6 +475,10 @@ export default {
       data: {
         videoFields: cleanVideoData(composerData)
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }).then((data: any) => {
+      syncComposerPath(data.data.id);
+      return data;
     });
   },
 
