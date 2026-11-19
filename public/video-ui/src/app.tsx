@@ -6,14 +6,13 @@ import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { routes } from './routes';
 import { updatePath } from './slices/path';
-import { NETWORK_FAILURE_MESSAGE, showWarning } from './slices/error';
+import { NETWORK_FAILURE_MESSAGE } from './slices/error';
 import { getAppConfig } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
 import {
   clearChromeUploadMarker,
-  consumeInterruptedChromeUpload,
-  uploadHeartbeatTimeout
+  warnAboutInterruptedChromeUpload
 } from './util/chromeUploadRecovery';
 
 import '../styles/main.scss';
@@ -86,15 +85,7 @@ setStore(store);
 
 store.dispatch(updatePath(location.pathname));
 
-window.setTimeout(() => {
-  if (consumeInterruptedChromeUpload()) {
-    store.dispatch(
-      showWarning(
-        'Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. Try uploading with Firefox or copying the file to a local folder first.'
-      )
-    );
-  }
-}, uploadHeartbeatTimeout);
+warnAboutInterruptedChromeUpload(store.dispatch);
 
 render(
   <Provider store={store}>{routes}</Provider>,

@@ -1,6 +1,9 @@
+import { Dispatch } from 'redux';
+import { showWarning } from '../slices/error';
+
 const storageKey = 'chrome-upload-started-at';
 const maxAge = 5 * 60 * 1000;
-export const uploadHeartbeatTimeout = 6000;
+const uploadHeartbeatTimeout = 6000;
 let heartbeat: number | undefined;
 
 function isChrome() {
@@ -51,5 +54,34 @@ export function consumeInterruptedChromeUpload(): boolean {
     return age < maxAge;
   } catch {
     return false;
+  }
+}
+
+export function warnAboutInterruptedChromeUpload(dispatch: Dispatch) {
+  if (!isChrome()) return;
+
+  let timestamp: string | null;
+  try {
+    timestamp = localStorage.getItem(storageKey);
+  } catch {
+    return;
+  }
+  if (!timestamp) return;
+
+  const warn = () => {
+    if (consumeInterruptedChromeUpload()) {
+      dispatch(
+        showWarning(
+          'Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. Try uploading with Firefox or copying the file to a local folder first.'
+        )
+      );
+    }
+  };
+
+  const remaining = uploadHeartbeatTimeout - (Date.now() - Number(timestamp));
+  if (remaining > 0) {
+    window.setTimeout(warn, remaining);
+  } else {
+    warn();
   }
 }
