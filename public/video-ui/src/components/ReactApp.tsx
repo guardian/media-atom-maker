@@ -144,14 +144,14 @@ export const ReactApp = (
           {store.error.message}
         </div>
       ) : null}
-      {store.error.warningMessage ? (
+      {store.error.warnings.map(warning => (
         <div
-          key={`warning-${store.error.warningKey}`}
+          key={`warning-${warning.key}`}
           className={'error-bar--warning error-bar--animate'}
         >
-          {store.error.warningMessage}
+          {warning.message}
         </div>
-      ) : null}
+      ))}
       <div>{props.children}</div>
     </div>
   );

@@ -85,9 +85,10 @@ setStore(store);
 
 store.dispatch(updatePath(location.pathname));
 
-warnAboutInterruptedChromeUpload(store.dispatch);
-
 render(
   <Provider store={store}>{routes}</Provider>,
   document.getElementById('react-mount')
 );
+
+// Check after initial render so synchronous `<IndexRedirect>` transitions do not clear the warning.
+warnAboutInterruptedChromeUpload(store.dispatch);
