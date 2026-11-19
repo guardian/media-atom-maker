@@ -80,12 +80,19 @@ describe('Chrome upload recovery', () => {
     expect(consumeInterruptedChromeUpload()).toBe(true);
   });
 
-  it('ignores expired markers', () => {
-    jest.spyOn(Date, 'now').mockReturnValue(1000);
-    markChromeUploadStarted();
-    jest.spyOn(Date, 'now').mockReturnValue(1000 + 24 * 60 * 60 * 1000);
-    expect(consumeInterruptedChromeUpload()).toBe(false);
-  });
+  it.each<[number, boolean]>([
+    [5 * 60 * 1000 - 1, true],
+    [5 * 60 * 1000, false]
+  ])(
+    'checks a marker aged %i ms against the five-minute limit',
+    (age, expected) => {
+      jest.spyOn(Date, 'now').mockReturnValue(1000);
+      markChromeUploadStarted();
+      jest.spyOn(Date, 'now').mockReturnValue(1000 + age);
+      expect(consumeInterruptedChromeUpload()).toBe(expected);
+      expect(localStorage.length).toBe(0);
+    }
+  );
 
   it('does not fail the upload when storage is unavailable', () => {
     jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {

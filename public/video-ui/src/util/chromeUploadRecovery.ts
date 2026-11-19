@@ -1,5 +1,5 @@
 const storageKey = 'chrome-upload-started-at';
-const maxAge = 24 * 60 * 60 * 1000;
+const maxAge = 5 * 60 * 1000;
 export const uploadHeartbeatTimeout = 6000;
 let heartbeat: number | undefined;
 
