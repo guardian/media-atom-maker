@@ -7,6 +7,10 @@ import {
   uploadSubtitleFile
 } from '../services/UploadsApi';
 import { errorDetails } from '../util/errorDetails';
+import {
+  clearChromeUploadMarker,
+  markChromeUploadStarted
+} from '../util/chromeUploadRecovery';
 import { showError } from './error';
 import { getUploads } from './uploads';
 
@@ -75,30 +79,26 @@ export interface S3UploadState {
 export const startVideoUpload = createAsyncThunk<
   unknown,
   { id: string; file: File; selfHost?: boolean }
->('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) => {
+>('s3Upload/startVideoUpload', async ({ id, file, selfHost }, { dispatch }) => {
   dispatch(setS3UploadStatusToStarting());
-  return createUpload(id, file, selfHost)
-    .then(upload => {
-      dispatch(s3UploadStarted(upload));
+  markChromeUploadStarted();
+  try {
+    const upload = await createUpload(id, file, selfHost);
+    dispatch(s3UploadStarted(upload));
 
-      const progress = (completed: number) =>
-        dispatch(s3UploadProgress(completed));
+    const progress = (completed: number) =>
+      dispatch(s3UploadProgress(completed));
 
-      return uploadParts(upload, upload.parts, file, progress)
-        .then(async () => {
-          await dispatch(getUploads(id));
-          dispatch(setS3UploadStatusToComplete());
-          dispatch(getVideo(id));
-        })
-        .catch(err => {
-          dispatch(showError(errorDetails(err), err));
-          dispatch(setS3UploadStatusToError());
-        });
-    })
-    .catch(err => {
-      dispatch(showError(errorDetails(err), err));
-      dispatch(setS3UploadStatusToError());
-    });
+    await uploadParts(upload, upload.parts, file, progress);
+    await dispatch(getUploads(id));
+    dispatch(setS3UploadStatusToComplete());
+    dispatch(getVideo(id));
+  } catch (err) {
+    dispatch(showError(errorDetails(err), err));
+    dispatch(setS3UploadStatusToError());
+  } finally {
+    clearChromeUploadMarker();
+  }
 });
 
 export const startSubtitleFileUpload = createAsyncThunk<
