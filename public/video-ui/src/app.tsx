@@ -11,6 +11,7 @@ import { getAppConfig } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
 import {
+  clearChromeUploadMarker,
   consumeInterruptedChromeUpload,
   uploadHeartbeatTimeout
 } from './util/chromeUploadRecovery';
@@ -33,6 +34,7 @@ const sentryEnvironment = stage;
 let pageIsUnloading = false;
 window.addEventListener('pagehide', () => {
   pageIsUnloading = true;
+  clearChromeUploadMarker();
 });
 window.addEventListener('pageshow', () => {
   pageIsUnloading = false;
@@ -88,7 +90,7 @@ window.setTimeout(() => {
   if (consumeInterruptedChromeUpload()) {
     store.dispatch(
       showWarning(
-        "Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. Try uploading with Firefox or copying the file to a local folder first."
+        'Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. Try uploading with Firefox or copying the file to a local folder first.'
       )
     );
   }
