@@ -29,7 +29,7 @@ const upload: Upload = {
 describe('Chrome upload recovery lifecycle', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    sessionStorage.clear();
+    localStorage.clear();
     jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Chrome/150.0');
     jest.mocked(createUpload).mockResolvedValue(upload);
     jest.mocked(uploadParts).mockResolvedValue(true);
@@ -37,7 +37,7 @@ describe('Chrome upload recovery lifecycle', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it('keeps the marker throughout an upload and clears it on success', async () => {
@@ -56,7 +56,7 @@ describe('Chrome upload recovery lifecycle', () => {
     await Promise.resolve();
     await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(sessionStorage.length).toBe(1);
+    expect(localStorage.length).toBe(1);
     expect(store.getState().status).toBe('uploading');
 
     completeUpload(true);
