@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const reqwest = require('reqwest');
 const url = require('url');
 
 class HMACRequest {
@@ -22,10 +21,9 @@ class HMACRequest {
     const token = this._getToken(remoteUrl, date);
 
     const requestBody = {
-      url: remoteUrl,
       method: method,
-      contentType: 'application/json',
       headers: {
+        'Content-Type': 'application/json',
         'X-Gu-Tools-HMAC-Date': date,
         'X-Gu-Tools-HMAC-Token': token,
         'X-Gu-Tools-Service-Name': 'DEV'
@@ -33,10 +31,15 @@ class HMACRequest {
     };
 
     if (Object.keys(data).length > 0) {
-      requestBody.data = JSON.stringify(data);
+      requestBody.body = JSON.stringify(data);
     }
 
-    return reqwest(requestBody);
+    return fetch(remoteUrl, requestBody).then(async response => {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.text();
+    });
   }
 
   get (remoteUrl) {

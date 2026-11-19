@@ -11,8 +11,10 @@ import com.gu.media.config.{Code, Stage}
 import com.gu.media.telemetry.{Telemetry, HMACClient}
 import com.gu.media.{Capi, MediaAtomMakerPermissionsProvider, Settings}
 import com.gu.media.iconik.{
+  DynamoIconikAtomStore,
   IconikApiClient,
   IconikCredentials,
+  IconikSyncService,
   IconikValidationService
 }
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
@@ -166,9 +168,23 @@ class MediaAtomMaker(context: Context)
 
     IconikCredentials.fromSecret(secretValue)
   }
+  private val iconikApiClient = new IconikApiClient(wsClient)(
+    controllerComponents.executionContext
+  )
   private val iconikValidationService = new IconikValidationService(
     stores.iconikDataStore,
-    new IconikApiClient(wsClient)(controllerComponents.executionContext),
+    iconikApiClient,
+    iconikCredentials
+  )(controllerComponents.executionContext)
+  private val iconikAtomStore = new DynamoIconikAtomStore(
+    iconikDynamoDbAsyncClient,
+    aws.dynamoTableName,
+    aws.publishedDynamoTableName
+  )(controllerComponents.executionContext)
+  private val iconikSyncService = new IconikSyncService(
+    stores.iconikDataStore,
+    iconikAtomStore,
+    iconikApiClient,
     iconikCredentials
   )(controllerComponents.executionContext)
 
@@ -248,6 +264,7 @@ class MediaAtomMaker(context: Context)
     aws,
     hmacAuthActions,
     stores,
+    iconikSyncService,
     controllerComponents
   )
   private val iconikValidationController = new IconikValidationController(
