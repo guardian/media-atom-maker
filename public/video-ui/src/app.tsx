@@ -88,7 +88,7 @@ window.setTimeout(() => {
   if (consumeInterruptedChromeUpload()) {
     store.dispatch(
       showWarning(
-        "Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. You haven't done anything wrong. Try uploading with Firefox or copying the file to a local folder first."
+        "Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. Try uploading with Firefox or copying the file to a local folder first."
       )
     );
   }
