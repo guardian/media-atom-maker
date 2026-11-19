@@ -21,7 +21,7 @@ type Props = {
   showTags: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hideTagResults: (...args: any[]) => any;
-  selectedTagIndex?: number;
+  selectedTagIndex: number | null;
   inputClearCount: number;
   disableCapiTags?: boolean;
   tagType?: string;
@@ -240,7 +240,6 @@ export default class TextInputTagPicker extends React.Component<Props, State> {
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}
           tagValue={this.props.tagValue}
-          // @ts-expect-error TS(2322): Type '(tag: DisplayTag, tagValue: ExistingTagValue... Remove this comment to see the full error message
           removeDupes={removeStringTagDuplicates}
           selectedTagIndex={this.props.selectedTagIndex}
         />

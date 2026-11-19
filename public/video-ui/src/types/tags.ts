@@ -3,6 +3,10 @@ export type DisplayTag = {
   webTitle: string;
 };
 
+export type DetailedDisplayTag = DisplayTag & {
+  detailedTitle: string;
+};
+
 export type CapiTagResponse = {
   response?: {
     tag?: DisplayTag;

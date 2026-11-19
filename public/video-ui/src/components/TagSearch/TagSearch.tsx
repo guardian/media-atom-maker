@@ -1,23 +1,22 @@
 import React from 'react';
+import type {
+  DetailedDisplayTag,
+  DisplayTag,
+  ParsedTag
+} from '../../types/tags';
 
 type Props = {
-  selectedTagIndex: number | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  removeDupes: any[] | any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tagValue: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectNewTag: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  searchResultTags: any[];
+  selectedTagIndex: number | null;
+  removeDupes: (tag: DisplayTag, tagValue: ParsedTag[]) => ParsedTag[];
+  tagValue: ParsedTag[];
+  selectNewTag: (newFieldValue: ParsedTag[]) => void;
+  searchResultTags: DetailedDisplayTag[];
   showTags: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tagsToVisible: any;
+  tagsToVisible: () => void;
 };
 
 class TagSearch extends React.Component<Props> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  listNodeRef: any;
+  listNodeRef: React.RefObject<HTMLUListElement>;
   constructor(props: Props) {
     super(props);
     this.listNodeRef = React.createRef();
@@ -30,20 +29,19 @@ class TagSearch extends React.Component<Props> {
       nextProps.selectedTagIndex !== null &&
       prevProps.selectedTagIndex !== nextProps.selectedTagIndex
     ) {
-      if (this.listNodeRef.current) {
-        const elementHeight = this.listNodeRef.current.children[0].offsetHeight;
+      const firstTag = this.listNodeRef.current?.firstElementChild;
+      if (this.listNodeRef.current && firstTag instanceof HTMLElement) {
+        const elementHeight = firstTag.offsetHeight;
         this.listNodeRef.current.scrollTop =
           elementHeight *
           (nextProps.selectedTagIndex === 0
             ? 0
-            : // @ts-expect-error TS(18048): 'nextProps.selectedTagIndex' is possibly 'undefine... Remove this comment to see the full error message
-              nextProps.selectedTagIndex - 1);
+            : nextProps.selectedTagIndex - 1);
       }
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  renderTags(tag: any, index: any) {
+  renderTags(tag: DetailedDisplayTag, index: number) {
     const getTagClassName = () => {
       return (
         'form__field__tags' +
@@ -54,7 +52,6 @@ class TagSearch extends React.Component<Props> {
     };
 
     const addTag = () => {
-      // @ts-expect-error TS(2349): This expression is not callable.
       const valueWithoutStringDupes = this.props.removeDupes(
         tag,
         this.props.tagValue
