@@ -6,17 +6,18 @@ import {
 
 describe('Chrome upload recovery', () => {
   beforeEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
     jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Chrome/150.0');
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
-  it('recognises an interrupted upload once after reloading the module', () => {
+  it('recognises an interrupted upload once without the previous tab session', () => {
     markChromeUploadStarted();
+    sessionStorage.clear();
     jest.isolateModules(() => {
       const reloaded = jest.requireActual<
         typeof import('./chromeUploadRecovery')
