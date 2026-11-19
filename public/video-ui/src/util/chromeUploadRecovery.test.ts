@@ -1,7 +1,8 @@
 import {
   clearChromeUploadMarker,
   consumeInterruptedChromeUpload,
-  markChromeUploadStarted
+  markChromeUploadStarted,
+  warnAboutInterruptedChromeUpload
 } from './chromeUploadRecovery';
 
 describe('Chrome upload recovery', () => {
@@ -75,9 +76,50 @@ describe('Chrome upload recovery', () => {
     jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(userAgent);
 
     expect(consumeInterruptedChromeUpload()).toBe(false);
+    const dispatch = jest.fn();
+    warnAboutInterruptedChromeUpload(dispatch);
+    expect(dispatch).not.toHaveBeenCalled();
 
     jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Chrome/150.0');
     expect(consumeInterruptedChromeUpload()).toBe(true);
+  });
+
+  it('warns immediately when the saved heartbeat is already stale', () => {
+    markChromeUploadStarted();
+    jest.clearAllTimers();
+    jest.advanceTimersByTime(6000);
+    const dispatch = jest.fn();
+
+    warnAboutInterruptedChromeUpload(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'SHOW_WARNING' })
+    );
+  });
+
+  it('waits only for the remaining heartbeat timeout', () => {
+    markChromeUploadStarted();
+    jest.clearAllTimers();
+    jest.advanceTimersByTime(4000);
+    const dispatch = jest.fn();
+
+    warnAboutInterruptedChromeUpload(dispatch);
+    jest.advanceTimersByTime(1999);
+    expect(dispatch).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not warn if another tab keeps the heartbeat fresh', () => {
+    markChromeUploadStarted();
+    jest.advanceTimersByTime(4000);
+    const dispatch = jest.fn();
+
+    warnAboutInterruptedChromeUpload(dispatch);
+    jest.advanceTimersByTime(2000);
+
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it.each<[number, boolean]>([
