@@ -16,7 +16,7 @@ type Props = {
   showTags: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hideTagResults: (...args: any[]) => any;
-  selectedTagIndex?: number;
+  selectedTagIndex: number | null;
   inputClearCount: number;
   inputPlaceholder: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,7 +76,6 @@ class PureTagPicker extends React.Component<Props, State> {
           tagsToVisible={this.props.tagsToVisible}
           selectNewTag={this.selectNewTag}
           tagValue={this.props.tagValue}
-          // @ts-expect-error TS(2322): Type '<T extends Tag>(tag: Tag, tagValue: T[]) => ... Remove this comment to see the full error message
           removeDupes={removeTagDuplicates}
           selectedTagIndex={this.props.selectedTagIndex}
         />
