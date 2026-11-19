@@ -10,6 +10,10 @@ import { NETWORK_FAILURE_MESSAGE } from './slices/error';
 import { getAppConfig } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
+import {
+  clearChromeUploadMarker,
+  warnAboutInterruptedChromeUpload
+} from './util/chromeUploadRecovery';
 
 import '../styles/main.scss';
 
@@ -29,6 +33,7 @@ const sentryEnvironment = stage;
 let pageIsUnloading = false;
 window.addEventListener('pagehide', () => {
   pageIsUnloading = true;
+  clearChromeUploadMarker();
 });
 window.addEventListener('pageshow', () => {
   pageIsUnloading = false;
@@ -84,3 +89,6 @@ render(
   <Provider store={store}>{routes}</Provider>,
   document.getElementById('react-mount')
 );
+
+// Check after initial render so synchronous `<IndexRedirect>` transitions do not clear the warning.
+warnAboutInterruptedChromeUpload(store.dispatch);

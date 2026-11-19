@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Action, AnyAction } from 'redux';
+import { AnyAction } from 'redux';
 import * as Sentry from '@sentry/browser';
 import { setActiveAsset } from './video';
 
@@ -120,24 +120,40 @@ export const showWarning: (message: string) => ShowWarning = message => {
   };
 };
 
-export const clearErrorAndWarning: () => Action<'CLEAR_ERROR_AND_WARNING'> =
-  () => ({
-    type: 'CLEAR_ERROR_AND_WARNING'
-  });
+export const clearErrorAndWarning: () => AnyAction & {
+  type: 'CLEAR_ERROR_AND_WARNING';
+} = () => ({
+  type: 'CLEAR_ERROR_AND_WARNING'
+});
+
+interface Warning {
+  key: number;
+  message: string;
+}
 
 interface ErrorState {
   message: false | string;
   key: number;
-  warningMessage: false | string;
+  warnings: Warning[];
   warningKey: number;
 }
 
 const initialState: ErrorState = {
   message: false,
   key: 0,
-  warningMessage: false,
+  warnings: [],
   warningKey: 0
 };
+
+function addWarning(state: ErrorState, message: string) {
+  state.warningKey++;
+  const existing = state.warnings.find(warning => warning.message === message);
+  if (existing) {
+    existing.key = state.warningKey;
+  } else {
+    state.warnings.push({ key: state.warningKey, message });
+  }
+}
 
 // Currently this slice users Extra Reducers to all for support of actions without
 // `domain/action` type formats. Once all consuming code which dispatches error actions
@@ -157,13 +173,12 @@ const error = createSlice({
     showWarning: builder.addCase<'SHOW_WARNING', ShowWarning>(
       'SHOW_WARNING',
       (state, { message }: ShowWarning) => {
-        state.warningMessage = message;
-        state.warningKey++;
+        addWarning(state, message);
       }
     ),
     clearErrorAndWarning: builder.addCase('CLEAR_ERROR_AND_WARNING', state => {
       state.message = false;
-      state.warningMessage = false;
+      state.warnings = [];
     }),
     showDurationWarning: builder.addCase(
       setActiveAsset,
@@ -172,9 +187,10 @@ const error = createSlice({
           a => a.version === payload.activeVersion
         );
         if (payload.duration === 0 && activeAsset?.platform === 'Youtube') {
-          state.warningMessage =
-            'YouTube reported the activated asset as being Live. If this is not the case you will need to manually set the duration.';
-          state.warningKey++;
+          addWarning(
+            state,
+            'YouTube reported the activated asset as being Live. If this is not the case you will need to manually set the duration.'
+          );
         }
       }
     )
