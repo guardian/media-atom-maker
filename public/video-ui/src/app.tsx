@@ -10,7 +10,10 @@ import { NETWORK_FAILURE_MESSAGE, showWarning } from './slices/error';
 import { getAppConfig } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
-import { consumeInterruptedChromeUpload } from './util/chromeUploadRecovery';
+import {
+  consumeInterruptedChromeUpload,
+  uploadHeartbeatTimeout
+} from './util/chromeUploadRecovery';
 
 import '../styles/main.scss';
 
@@ -81,13 +84,15 @@ setStore(store);
 
 store.dispatch(updatePath(location.pathname));
 
-if (consumeInterruptedChromeUpload()) {
-  store.dispatch(
-    showWarning(
-      "Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. You haven't done anything wrong. Try uploading with Firefox or copying the file to a local folder first."
-    )
-  );
-}
+window.setTimeout(() => {
+  if (consumeInterruptedChromeUpload()) {
+    store.dispatch(
+      showWarning(
+        "Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. You haven't done anything wrong. Try uploading with Firefox or copying the file to a local folder first."
+      )
+    );
+  }
+}, uploadHeartbeatTimeout);
 
 render(
   <Provider store={store}>{routes}</Provider>,
