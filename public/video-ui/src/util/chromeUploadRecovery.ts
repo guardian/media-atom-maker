@@ -10,7 +10,7 @@ export function markChromeUploadStarted() {
   }
 
   try {
-    sessionStorage.setItem(storageKey, String(Date.now()));
+    localStorage.setItem(storageKey, String(Date.now()));
   } catch {
     // Storage restrictions must not prevent uploading.
   }
@@ -18,7 +18,7 @@ export function markChromeUploadStarted() {
 
 export function clearChromeUploadMarker() {
   try {
-    sessionStorage.removeItem(storageKey);
+    localStorage.removeItem(storageKey);
   } catch {
     // Storage restrictions must not prevent uploading.
   }
@@ -26,8 +26,8 @@ export function clearChromeUploadMarker() {
 
 export function consumeInterruptedChromeUpload(): boolean {
   try {
-    const timestamp = sessionStorage.getItem(storageKey);
-    sessionStorage.removeItem(storageKey);
+    const timestamp = localStorage.getItem(storageKey);
+    localStorage.removeItem(storageKey);
     if (!timestamp) return false;
 
     const age = Date.now() - Number(timestamp);
