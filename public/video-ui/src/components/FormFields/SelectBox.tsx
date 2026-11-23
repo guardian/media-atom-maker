@@ -1,59 +1,39 @@
 import React from 'react';
+import FieldNotification from '../../constants/FieldNotification';
 
 const pleaseSelect = 'Please select...';
 
+type SelectValue = {
+  id: string | number;
+  title: string;
+};
+
 type Props = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  displayDefault: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldValue: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  defaultOption: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectValues: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editable: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  displayPlaceholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  placeholder: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fieldName: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hasError: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  input: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateField: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  notification: any;
+  displayDefault?: boolean;
+  fieldValue: string;
+  defaultOption?: string;
+  selectValues: SelectValue[];
+  editable: boolean;
+  displayPlaceholder: (placeholder: string, fieldValue: string) => boolean;
+  placeholder: string;
+  fieldName: string;
+  hasError: (props: Props) => boolean;
+  input?: React.SelectHTMLAttributes<HTMLSelectElement>;
+  onUpdateField: (value: string) => void;
+  notification: FieldNotification | null;
 };
 
 export default class SelectBox extends React.Component<Props> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hasError: any;
-  getClassName = () => {
-    return (
-      'form__field form__field--select ' +
-      (this.hasError() ? 'form__field--error' : '')
-    );
-  };
-
   renderDefaultOption = () => {
     if (this.props.displayDefault || !this.props.fieldValue) {
-      return (
-        // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | nu... Remove this comment to see the full error message
-        <option value={null}>{this.props.defaultOption || pleaseSelect}</option>
-      );
+      return <option>{this.props.defaultOption || pleaseSelect}</option>;
     }
   };
 
   renderField = () => {
     const matchingValues = this.props.selectValues.filter(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (fieldValue: any) =>
-        this.props.fieldValue &&
-        fieldValue.id.toString() === this.props.fieldValue.toString()
+      value =>
+        this.props.fieldValue && value.id.toString() === this.props.fieldValue
     );
 
     if (!this.props.editable) {
@@ -95,16 +75,10 @@ export default class SelectBox extends React.Component<Props> {
           }}
         >
           {this.props.fieldValue && matchingValues.length === 0 && (
-            <option
-              value={this.props.fieldValue.id}
-              key={this.props.fieldValue.id}
-            >
-              {pleaseSelect}
-            </option>
+            <option>{pleaseSelect}</option>
           )}
           {this.renderDefaultOption()}
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {this.props.selectValues.map(function (value: any) {
+          {this.props.selectValues.map(function (value) {
             return (
               <option value={value.id} key={value.id}>
                 {value.title}
@@ -114,7 +88,7 @@ export default class SelectBox extends React.Component<Props> {
         </select>
         {hasError ? (
           <p className="form__message form__message--error">
-            {this.props.notification.message}
+            {this.props.notification?.message}
           </p>
         ) : (
           ''
