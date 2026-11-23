@@ -10,10 +10,44 @@ import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
+sealed trait IconikSyncAction {
+  def value: String
+}
+
+object IconikSyncAction {
+  case object Created extends IconikSyncAction { val value = "created" }
+  case object Deleted extends IconikSyncAction { val value = "deleted" }
+  case object Updated extends IconikSyncAction { val value = "updated" }
+  case object Unchanged extends IconikSyncAction { val value = "unchanged" }
+
+  implicit val writes: Writes[IconikSyncAction] =
+    Writes(action => play.api.libs.json.JsString(action.value))
+}
+
+sealed trait IconikSyncEntityType {
+  def value: String
+}
+
+object IconikSyncEntityType {
+  case object WorkingGroup extends IconikSyncEntityType {
+    val value = "working_group"
+  }
+  case object Commission extends IconikSyncEntityType {
+    val value = "commission"
+  }
+  case object Project extends IconikSyncEntityType {
+    val value = "project"
+  }
+  case object Atom extends IconikSyncEntityType { val value = "atom" }
+
+  implicit val writes: Writes[IconikSyncEntityType] =
+    Writes(entityType => play.api.libs.json.JsString(entityType.value))
+}
+
 case class IconikSyncChange(
     id: String,
-    entityType: String,
-    action: String,
+    entityType: IconikSyncEntityType,
+    action: IconikSyncAction,
     fields: JsObject,
     isPublished: Option[Boolean] = None
 )
@@ -24,8 +58,8 @@ object IconikSyncChange {
 
 case class IconikSyncResult(
     id: String,
-    entityType: String,
-    action: String,
+    entityType: IconikSyncEntityType,
+    action: IconikSyncAction,
     updatedChildIds: List[String] = Nil,
     updatedAtomIds: List[String] = Nil,
     dryRun: Boolean = false,
@@ -53,9 +87,10 @@ case class SyncNotFound(id: String) extends IconikSyncError {
 case class SyncInvalidHierarchy(id: String, message: String)
     extends IconikSyncError
 
-case class SyncWriteConflict(id: String, entityType: String)
+case class SyncWriteConflict(id: String, entityType: IconikSyncEntityType)
     extends IconikSyncError {
-  val message = s"$entityType $id changed during sync; preview and retry"
+  val message =
+    s"${entityType.value} $id changed during sync; preview and retry"
 }
 
 /** Sync cannot proceed while these child collections or atom references remain
@@ -63,7 +98,7 @@ case class SyncWriteConflict(id: String, entityType: String)
   */
 case class SyncCascadeBlocked(
     id: String,
-    entityType: String,
+    entityType: IconikSyncEntityType,
     message: String,
     blockingChildIds: List[String] = Nil,
     atomIdsPreventingSync: List[String] = Nil
@@ -105,7 +140,7 @@ class IconikSyncService[E](
     */
   private case class SyncPlan(
       id: String,
-      entityType: String,
+      entityType: IconikSyncEntityType,
       steps: List[List[PendingChange]]
   ) {
     def changes: List[IconikSyncChange] = steps.flatten.flatMap(_.changes)
@@ -121,16 +156,21 @@ class IconikSyncService[E](
           .find(c => c.id == id && c.entityType == entityType)
           .map(_.action)
           .getOrElse(
-            if (changes.nonEmpty) "updated"
-            else "unchanged"
+            if (changes.nonEmpty) IconikSyncAction.Updated
+            else IconikSyncAction.Unchanged
           ),
         updatedChildIds = changes
-          .filter(c => c.entityType == "project" && c.id != id)
+          .filter(c =>
+            c.entityType == IconikSyncEntityType.Project && c.id != id
+          )
           .map(_.id)
           .distinct
           .sorted,
-        updatedAtomIds =
-          changes.filter(_.entityType == "atom").map(_.id).distinct.sorted,
+        updatedAtomIds = changes
+          .filter(_.entityType == IconikSyncEntityType.Atom)
+          .map(_.id)
+          .distinct
+          .sorted,
         dryRun = dryRun,
         changes = changes
       )
@@ -140,11 +180,11 @@ class IconikSyncService[E](
   private val maxHierarchyDepth = 6
 
   private sealed trait ResolvedEntity {
-    def entityType: String
+    def entityType: IconikSyncEntityType
   }
   private case class ResolvedWorkingGroup(id: String, title: String)
       extends ResolvedEntity {
-    val entityType = "working_group"
+    val entityType = IconikSyncEntityType.WorkingGroup
   }
   private case class ResolvedCommission(
       id: String,
@@ -153,7 +193,7 @@ class IconikSyncService[E](
       workingGroupTitle: String,
       year: Option[String]
   ) extends ResolvedEntity {
-    val entityType = "commission"
+    val entityType = IconikSyncEntityType.Commission
   }
   private case class ResolvedProject(
       id: String,
@@ -164,7 +204,7 @@ class IconikSyncService[E](
       workingGroupTitle: String,
       commissionYear: Option[String]
   ) extends ResolvedEntity {
-    val entityType = "project"
+    val entityType = IconikSyncEntityType.Project
   }
 
   private case class StoredState(
@@ -172,11 +212,11 @@ class IconikSyncService[E](
       commission: Option[IconikCommission],
       workingGroup: Option[IconikWorkingGroup]
   ) {
-    def storedType: Option[String] =
+    def storedType: Option[IconikSyncEntityType] =
       project
-        .map(_ => "project")
-        .orElse(commission.map(_ => "commission"))
-        .orElse(workingGroup.map(_ => "working_group"))
+        .map(_ => IconikSyncEntityType.Project)
+        .orElse(commission.map(_ => IconikSyncEntityType.Commission))
+        .orElse(workingGroup.map(_ => IconikSyncEntityType.WorkingGroup))
   }
 
   def sync(
@@ -245,7 +285,7 @@ class IconikSyncService[E](
             (),
             SyncCascadeBlocked(
               id = id,
-              entityType = "project",
+              entityType = IconikSyncEntityType.Project,
               message =
                 "Project is missing in Iconik but still referenced by atoms",
               atomIdsPreventingSync = atomIdsPreventingSync
@@ -253,8 +293,13 @@ class IconikSyncService[E](
           )
         } yield SyncPlan(
           id,
-          "project",
-          planCollectionChange("project", id, Some(project), None) {
+          IconikSyncEntityType.Project,
+          planCollectionChange(
+            IconikSyncEntityType.Project,
+            id,
+            Some(project),
+            None
+          ) {
             Right(iconikStore.deleteProject(id))
           }
         )
@@ -269,7 +314,7 @@ class IconikSyncService[E](
             (),
             SyncCascadeBlocked(
               id = id,
-              entityType = "commission",
+              entityType = IconikSyncEntityType.Commission,
               message =
                 "Commission has child projects; sync child projects first",
               blockingChildIds = childProjects.map(_.id).sorted
@@ -286,7 +331,7 @@ class IconikSyncService[E](
             (),
             SyncCascadeBlocked(
               id = id,
-              entityType = "commission",
+              entityType = IconikSyncEntityType.Commission,
               message =
                 "Commission is missing in Iconik but still referenced by atoms",
               atomIdsPreventingSync = atomIdsPreventingSync
@@ -294,8 +339,13 @@ class IconikSyncService[E](
           )
         } yield SyncPlan(
           id,
-          "commission",
-          planCollectionChange("commission", id, Some(commission), None) {
+          IconikSyncEntityType.Commission,
+          planCollectionChange(
+            IconikSyncEntityType.Commission,
+            id,
+            Some(commission),
+            None
+          ) {
             Right(iconikStore.deleteCommission(id))
           }
         )
@@ -310,7 +360,7 @@ class IconikSyncService[E](
             (),
             SyncCascadeBlocked(
               id = id,
-              entityType = "working_group",
+              entityType = IconikSyncEntityType.WorkingGroup,
               message =
                 "Working group has child commissions; sync child commissions first",
               blockingChildIds = childCommissions.map(_.id).sorted
@@ -328,7 +378,7 @@ class IconikSyncService[E](
             (),
             SyncCascadeBlocked(
               id = id,
-              entityType = "working_group",
+              entityType = IconikSyncEntityType.WorkingGroup,
               message =
                 "Working group is still referenced by projects; sync those projects first",
               blockingChildIds = referencingProjectIds
@@ -345,7 +395,7 @@ class IconikSyncService[E](
             (),
             SyncCascadeBlocked(
               id = id,
-              entityType = "working_group",
+              entityType = IconikSyncEntityType.WorkingGroup,
               message =
                 "Working group is missing in Iconik but still referenced by atoms",
               atomIdsPreventingSync = atomIdsPreventingSync
@@ -353,8 +403,13 @@ class IconikSyncService[E](
           )
         } yield SyncPlan(
           id,
-          "working_group",
-          planCollectionChange("working_group", id, Some(workingGroup), None) {
+          IconikSyncEntityType.WorkingGroup,
+          planCollectionChange(
+            IconikSyncEntityType.WorkingGroup,
+            id,
+            Some(workingGroup),
+            None
+          ) {
             Right(iconikStore.deleteWorkingGroup(id))
           }
         )
@@ -378,7 +433,7 @@ class IconikSyncService[E](
           existingType =>
             SyncInvalidHierarchy(
               id,
-              s"Collection $id resolved as ${resolved.entityType} in Iconik, conflicting with stored $existingType"
+              s"Collection $id resolved as ${resolved.entityType.value} in Iconik, conflicting with stored ${existingType.value}"
             )
         }
       )
@@ -614,7 +669,7 @@ class IconikSyncService[E](
       case ResolvedWorkingGroup(id, title) =>
         val target = IconikWorkingGroup(id, title)
         val steps = planCollectionChange(
-          "working_group",
+          IconikSyncEntityType.WorkingGroup,
           id,
           stored.workingGroup,
           Some(target)
@@ -622,7 +677,7 @@ class IconikSyncService[E](
           Right(iconikStore.upsertWorkingGroup(target))
         }
         EitherT.rightT[Future, IconikSyncError](
-          SyncPlan(id, "working_group", steps)
+          SyncPlan(id, IconikSyncEntityType.WorkingGroup, steps)
         )
 
       case ResolvedCommission(id, title, wgId, wgTitle, year) =>
@@ -686,7 +741,7 @@ class IconikSyncService[E](
         (),
         SyncCascadeBlocked(
           id = target.id,
-          entityType = "commission",
+          entityType = IconikSyncEntityType.Commission,
           message =
             "Reparenting commission requires updating child projects and atoms; sync child projects first",
           blockingChildIds = blockingChildIds,
@@ -697,7 +752,7 @@ class IconikSyncService[E](
       val childSteps = staleProjects.flatMap { project =>
         val updated = project.copy(workingGroupId = target.workingGroupId)
         planCollectionChange(
-          "project",
+          IconikSyncEntityType.Project,
           project.id,
           Some(project),
           Some(updated)
@@ -706,12 +761,17 @@ class IconikSyncService[E](
         }
       }
       val commissionSteps =
-        planCollectionChange("commission", target.id, existing, Some(target)) {
+        planCollectionChange(
+          IconikSyncEntityType.Commission,
+          target.id,
+          existing,
+          Some(target)
+        ) {
           Right(iconikStore.upsertCommission(target))
         }
       SyncPlan(
         target.id,
-        "commission",
+        IconikSyncEntityType.Commission,
         childSteps ++ commissionSteps
       )
     }
@@ -744,8 +804,8 @@ class IconikSyncService[E](
             val updateParents = ref.projectId.contains(projectId)
             IconikSyncChange(
               id = ref.atomId,
-              entityType = "atom",
-              action = "updated",
+              entityType = IconikSyncEntityType.Atom,
+              action = IconikSyncAction.Updated,
               fields = changedFields(
                 Json.obj(
                   "commissionId" -> ref.commissionId,
@@ -783,7 +843,10 @@ class IconikSyncService[E](
                       Either.cond(
                         updated,
                         changes,
-                        SyncWriteConflict(atomId, "atom")
+                        SyncWriteConflict(
+                          atomId,
+                          IconikSyncEntityType.Atom
+                        )
                       )
                     )
                 )
@@ -812,14 +875,18 @@ class IconikSyncService[E](
           )
       }
       val projectSteps = planCollectionChange(
-        "project",
+        IconikSyncEntityType.Project,
         projectId,
         existingProject,
         Some(target)
       ) {
         persistProject(existingProject, target)
       }
-      SyncPlan(projectId, "project", List(atomChanges) ++ projectSteps)
+      SyncPlan(
+        projectId,
+        IconikSyncEntityType.Project,
+        List(atomChanges) ++ projectSteps
+      )
     }
 
   private def planWorkingGroupIfMissing(
@@ -830,7 +897,12 @@ class IconikSyncService[E](
       case Some(_) => Nil
       case None =>
         val target = IconikWorkingGroup(wgId, wgTitle)
-        planCollectionChange("working_group", wgId, None, Some(target)) {
+        planCollectionChange(
+          IconikSyncEntityType.WorkingGroup,
+          wgId,
+          None,
+          Some(target)
+        ) {
           Right(iconikStore.upsertWorkingGroup(target))
         }
     }
@@ -845,13 +917,18 @@ class IconikSyncService[E](
       case Some(_) => Nil
       case None =>
         val target = IconikCommission(wgId, commId, commTitle, year)
-        planCollectionChange("commission", commId, None, Some(target)) {
+        planCollectionChange(
+          IconikSyncEntityType.Commission,
+          commId,
+          None,
+          Some(target)
+        ) {
           Right(iconikStore.upsertCommission(target))
         }
     }
 
   private def planCollectionChange[A: Writes](
-      entityType: String,
+      entityType: IconikSyncEntityType,
       id: String,
       before: Option[A],
       after: Option[A]
@@ -864,9 +941,9 @@ class IconikSyncService[E](
       val change = IconikSyncChange(
         id,
         entityType,
-        if (before.isEmpty) "created"
-        else if (after.isEmpty) "deleted"
-        else "updated",
+        if (before.isEmpty) IconikSyncAction.Created
+        else if (after.isEmpty) IconikSyncAction.Deleted
+        else IconikSyncAction.Updated,
         changedFields(fields(before), fields(after))
       )
       List(
@@ -887,7 +964,11 @@ class IconikSyncService[E](
       after: IconikProject
   ): Either[IconikSyncError, Unit] =
     liftStore(iconikStore.syncProject(before, after)).flatMap(updated =>
-      Either.cond(updated, (), SyncWriteConflict(after.id, "project"))
+      Either.cond(
+        updated,
+        (),
+        SyncWriteConflict(after.id, IconikSyncEntityType.Project)
+      )
     )
 
   private def changedFields(before: JsObject, after: JsObject): JsObject =

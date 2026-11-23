@@ -1,5 +1,7 @@
 package com.gu.media.iconik
 
+import IconikSyncAction._
+import IconikSyncEntityType._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.Json
@@ -193,14 +195,14 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
 
     val expected = IconikSyncResult(
       id = "proj-1",
-      entityType = "project",
-      action = "updated",
+      entityType = Project,
+      action = Updated,
       updatedAtomIds = List("atom-1"),
       changes = initialAtoms.map(ref =>
         IconikSyncChange(
           "atom-1",
-          "atom",
-          "updated",
+          Atom,
+          Updated,
           if (ref.isPublished) {
             Json.obj(
               "commissionId" -> Json
@@ -214,8 +216,8 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
         )
       ) :+ IconikSyncChange(
         "proj-1",
-        "project",
-        "updated",
+        Project,
+        Updated,
         Json.obj(
           "title" -> Json
             .obj("before" -> "Old Project", "after" -> "Renamed Project"),
@@ -249,7 +251,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     )
     atoms.refs.map(_.revision).toList shouldBe List(9, 8)
     await(service.sync("proj-1")) shouldBe Right(
-      IconikSyncResult("proj-1", "project", "unchanged")
+      IconikSyncResult("proj-1", Project, Unchanged)
     )
   }
 
@@ -300,7 +302,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     rejected shouldBe Left(
       SyncCascadeBlocked(
         id = "comm-1",
-        entityType = "commission",
+        entityType = Commission,
         message =
           "Reparenting commission requires updating child projects and atoms; sync child projects first",
         blockingChildIds = List("proj-1"),
@@ -314,8 +316,8 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     await(service.sync("proj-1")).map(_.copy(changes = Nil)) shouldBe Right(
       IconikSyncResult(
         id = "proj-1",
-        entityType = "project",
-        action = "updated",
+        entityType = Project,
+        action = Updated,
         updatedAtomIds = List("atom-1")
       )
     )
@@ -324,8 +326,8 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     await(service.sync("comm-1")).map(_.copy(changes = Nil)) shouldBe Right(
       IconikSyncResult(
         id = "comm-1",
-        entityType = "commission",
-        action = "updated"
+        entityType = Commission,
+        action = Updated
       )
     )
     store.getCommission("comm-1").map(_.map(_.workingGroupId)) shouldBe Right(
@@ -364,15 +366,15 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
 
     val expected = IconikSyncResult(
       id = "comm-1",
-      entityType = "commission",
-      action = "updated",
+      entityType = Commission,
+      action = Updated,
       updatedChildIds = List("proj-1"),
-      changes = List("proj-1" -> "project", "comm-1" -> "commission").map {
+      changes = List("proj-1" -> Project, "comm-1" -> Commission).map {
         case (id, entityType) =>
           IconikSyncChange(
             id,
             entityType,
-            "updated",
+            Updated,
             Json.obj(
               "workingGroupId" -> Json.obj(
                 "before" -> "wg-1",
@@ -441,7 +443,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     await(service.sync("comm-orphan")) shouldBe Left(
       SyncCascadeBlocked(
         id = "comm-orphan",
-        entityType = "commission",
+        entityType = Commission,
         message = "Commission has child projects; sync child projects first",
         blockingChildIds = List("proj-orphan")
       )
@@ -449,7 +451,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
 
     val deletionPreview =
       await(service.sync("proj-orphan", dryRun = true)).toOption.get
-    deletionPreview.action shouldBe "deleted"
+    deletionPreview.action shouldBe Deleted
     (deletionPreview.changes.head.fields \ "title").get shouldBe
       Json.obj(
         "before" -> "Unused Project",
@@ -459,22 +461,22 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     store.getProject("proj-orphan").map(_.isDefined) shouldBe Right(true)
     await(service.sync("proj-orphan"))
       .map(_.copy(changes = Nil)) shouldBe Right(
-      IconikSyncResult("proj-orphan", "project", "deleted")
+      IconikSyncResult("proj-orphan", Project, Deleted)
     )
     val writesBeforePreview = store.writeCalls.get()
     await(service.sync("comm-orphan", dryRun = true))
-      .map(_.action) shouldBe Right("deleted")
+      .map(_.action) shouldBe Right(Deleted)
     store.writeCalls.get() shouldBe writesBeforePreview
     await(service.sync("comm-orphan"))
       .map(_.copy(changes = Nil)) shouldBe Right(
-      IconikSyncResult("comm-orphan", "commission", "deleted")
+      IconikSyncResult("comm-orphan", Commission, Deleted)
     )
     store.getCommission("comm-orphan") shouldBe Right(None)
 
     await(service.sync("proj-peptides")) shouldBe Left(
       SyncCascadeBlocked(
         id = "proj-peptides",
-        entityType = "project",
+        entityType = Project,
         message = "Project is missing in Iconik but still referenced by atoms",
         atomIdsPreventingSync = List("atom-peptides")
       )
@@ -495,11 +497,11 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     val preview = await(service.sync("proj-new", dryRun = true)).toOption.get
 
     preview.dryRun shouldBe true
-    preview.action shouldBe "created"
+    preview.action shouldBe Created
     preview.changes.map(c => (c.id, c.entityType, c.action)) shouldBe List(
-      ("wg-2", "working_group", "created"),
-      ("comm-new", "commission", "created"),
-      ("proj-new", "project", "created")
+      ("wg-2", WorkingGroup, Created),
+      ("comm-new", Commission, Created),
+      ("proj-new", Project, Created)
     )
     (preview.changes.head.fields \ "title").get shouldBe
       Json.obj("before" -> play.api.libs.json.JsNull, "after" -> "News")
@@ -531,8 +533,8 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     preview.changes shouldBe List(
       IconikSyncChange(
         "wg-1",
-        "working_group",
-        "updated",
+        WorkingGroup,
+        Updated,
         Json.obj(
           "title" -> Json.obj("before" -> "Old Name", "after" -> "New Name")
         )
@@ -547,7 +549,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     val (deleteService, deleteStore, _) =
       fixture(Map.empty, initialWorkingGroups = List(group))
     val deletion = await(deleteService.sync("wg-1", dryRun = true)).toOption.get
-    deletion.action shouldBe "deleted"
+    deletion.action shouldBe Deleted
     deleteStore.writeCalls.get() shouldBe 0
     deleteStore.getWorkingGroup("wg-1") shouldBe Right(Some(group))
     await(deleteService.sync("wg-1")) shouldBe Right(
@@ -598,9 +600,9 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
 
     val preview = await(service.sync("proj-1", dryRun = true)).toOption.get
     preview.updatedAtomIds shouldBe List("atom-1")
-    preview.changes.map(_.entityType) shouldBe List("atom")
+    preview.changes.map(_.entityType) shouldBe List(Atom)
     await(service.sync("proj-1")) shouldBe Left(
-      SyncWriteConflict("atom-1", "atom")
+      SyncWriteConflict("atom-1", Atom)
     )
     store.writeCalls.get() shouldBe 0
   }
@@ -696,7 +698,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
       await(service.sync("old-wg", dryRun)) shouldBe Left(
         SyncCascadeBlocked(
           "old-wg",
-          "working_group",
+          WorkingGroup,
           "Working group is still referenced by projects; sync those projects first",
           blockingChildIds = List("proj-1")
         )
@@ -735,7 +737,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
         (id, current) => if (id == "proj-1") current.upsertProject(newer)
     )
 
-    await(service.sync("proj-1")).map(_.action) shouldBe Right("updated")
+    await(service.sync("proj-1")).map(_.action) shouldBe Right(Updated)
     store.getProject("proj-1") shouldBe Right(
       Some(newer.copy(title = "New title"))
     )
@@ -770,7 +772,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     )
 
     await(service.sync("comm-1")) shouldBe Left(
-      SyncWriteConflict("proj-1", "project")
+      SyncWriteConflict("proj-1", Project)
     )
     store.getProject("proj-1") shouldBe Right(Some(moved))
     store.getCommission("comm-1") shouldBe Right(Some(commission))
@@ -800,7 +802,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     )
 
     await(service.sync("proj-1")) shouldBe Left(
-      SyncWriteConflict("proj-1", "project")
+      SyncWriteConflict("proj-1", Project)
     )
     store.getProject("proj-1") shouldBe Right(Some(concurrent))
   }
@@ -859,7 +861,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     await(service.sync("comm-1")) shouldBe Left(
       SyncCascadeBlocked(
         id = "comm-1",
-        entityType = "commission",
+        entityType = Commission,
         message =
           "Reparenting commission requires updating child projects and atoms; sync child projects first",
         blockingChildIds = List("proj-current", "proj-stale"),
@@ -873,7 +875,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     atoms.refs.head.workingGroupId shouldBe Some("wg-2")
 
     val repaired = await(service.sync("comm-1")).toOption.get
-    repaired.action shouldBe "updated"
+    repaired.action shouldBe Updated
     repaired.updatedChildIds shouldBe List("proj-stale")
     store.getProject("proj-stale").map(_.map(_.workingGroupId)) shouldBe Right(
       Some("wg-2")
@@ -920,7 +922,7 @@ class IconikSyncServiceTest extends AnyFlatSpec with Matchers {
     )
 
     val result = await(service.sync("comm-1")).toOption.get
-    result.action shouldBe "updated"
+    result.action shouldBe Updated
     result.updatedChildIds shouldBe List("proj-1")
     result.updatedAtomIds shouldBe Nil
     atoms.updateCalls.get() shouldBe 0

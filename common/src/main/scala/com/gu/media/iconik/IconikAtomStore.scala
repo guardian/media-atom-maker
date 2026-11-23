@@ -151,8 +151,10 @@ class DynamoIconikAtomStore(
       if (ref.isLegacyEncoding) baseNames
       else baseNames + ("#media" -> "media")
     val values = Map.newBuilder[String, AttributeValue]
-    values += ":revision" -> number(ref.revision)
-    values += ":newRevision" -> number(ref.revision + 1)
+    values += ":revision" -> AttributeValue.fromN(ref.revision.toString)
+    values += ":newRevision" -> AttributeValue.fromN(
+      (ref.revision + 1).toString
+    )
 
     val expectedFields = List(
       s"$iconikPath.#projectId" -> (":currentProjectId", ref.projectId),
@@ -169,7 +171,7 @@ class DynamoIconikAtomStore(
       case (path, (valueName, value)) =>
         value match {
           case Some(current) =>
-            values += valueName -> str(current)
+            values += valueName -> AttributeValue.fromS(current)
             s"$path = $valueName"
           case None => s"attribute_not_exists($path)"
         }
@@ -177,8 +179,8 @@ class DynamoIconikAtomStore(
     val shouldUpdateParents = ref.projectId.contains(projectId)
     val parentUpdates =
       if (shouldUpdateParents) {
-        values += ":commissionId" -> str(commissionId)
-        values += ":workingGroupId" -> str(workingGroupId)
+        values += ":commissionId" -> AttributeValue.fromS(commissionId)
+        values += ":workingGroupId" -> AttributeValue.fromS(workingGroupId)
         List(
           s"$iconikPath.#commissionId = :commissionId",
           s"$iconikPath.#workingGroupId = :workingGroupId"
@@ -188,7 +190,7 @@ class DynamoIconikAtomStore(
     Update
       .builder()
       .tableName(tableName)
-      .key(Map("id" -> str(ref.atomId)).asJava)
+      .key(Map("id" -> AttributeValue.fromS(ref.atomId)).asJava)
       .updateExpression(
         s"SET ${(parentUpdates :+ "#changes.#revision = :newRevision").mkString(", ")}"
       )
@@ -312,12 +314,6 @@ class DynamoIconikAtomStore(
       key: String
   ): Option[String] =
     Option(map.get(key)).flatMap(v => Option(v.s())).filter(_.nonEmpty)
-
-  private def str(value: String): AttributeValue =
-    AttributeValue.builder().s(value).build()
-
-  private def number(value: Long): AttributeValue =
-    AttributeValue.builder().n(value.toString).build()
 
   private def hasConditionalCheckFailure(error: Throwable): Boolean =
     error match {
