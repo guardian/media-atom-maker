@@ -1,9 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { createUpload, uploadParts } from '../services/UploadsApi';
-import {
-  clearChromeUploadMarker,
-  consumeInterruptedChromeUpload
-} from '../util/chromeUploadRecovery';
+import { stopChromeUploadHeartbeat } from '../util/chromeUploadRecovery';
 import s3Upload, { startVideoUpload, Upload } from './s3Upload';
 
 jest.mock('../services/UploadsApi');
@@ -39,7 +36,7 @@ describe('Chrome upload recovery lifecycle', () => {
   });
 
   afterEach(() => {
-    clearChromeUploadMarker();
+    stopChromeUploadHeartbeat();
     jest.restoreAllMocks();
     localStorage.clear();
   });
@@ -67,7 +64,6 @@ describe('Chrome upload recovery lifecycle', () => {
     await result;
 
     expect(localStorage.length).toBe(0);
-    expect(consumeInterruptedChromeUpload()).toBe(false);
     expect(store.getState().status).toBe('idle');
   });
 
@@ -86,7 +82,6 @@ describe('Chrome upload recovery lifecycle', () => {
       );
 
       expect(localStorage.length).toBe(0);
-      expect(consumeInterruptedChromeUpload()).toBe(false);
       expect(store.getState().status).toBe('error');
     }
   );

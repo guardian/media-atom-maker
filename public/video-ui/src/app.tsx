@@ -6,13 +6,15 @@ import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { routes } from './routes';
 import { updatePath } from './slices/path';
-import { NETWORK_FAILURE_MESSAGE } from './slices/error';
+import { NETWORK_FAILURE_MESSAGE, showWarning } from './slices/error';
 import { getAppConfig } from './util/config';
 import { setupStore } from './util/setupStore';
 import { setStore } from './util/storeAccessor';
 import {
   clearChromeUploadMarker,
-  warnAboutInterruptedChromeUpload
+  STALE_AFTER_MS,
+  stopChromeUploadHeartbeat,
+  wasChromeUploadInterrupted
 } from './util/chromeUploadRecovery';
 
 import '../styles/main.scss';
@@ -33,7 +35,7 @@ const sentryEnvironment = stage;
 let pageIsUnloading = false;
 window.addEventListener('pagehide', () => {
   pageIsUnloading = true;
-  clearChromeUploadMarker();
+  stopChromeUploadHeartbeat();
 });
 window.addEventListener('pageshow', () => {
   pageIsUnloading = false;
@@ -90,5 +92,13 @@ render(
   document.getElementById('react-mount')
 );
 
-// Check after initial render so synchronous `<IndexRedirect>` transitions do not clear the warning.
-warnAboutInterruptedChromeUpload(store.dispatch);
+window.setTimeout(() => {
+  if (wasChromeUploadInterrupted()) {
+    clearChromeUploadMarker();
+    store.dispatch(
+      showWarning(
+        'Your previous upload may have been interrupted by a known Chrome issue affecting files on LucidLink. Try uploading with Firefox or copying the file to a local folder first.'
+      )
+    );
+  }
+}, STALE_AFTER_MS);
