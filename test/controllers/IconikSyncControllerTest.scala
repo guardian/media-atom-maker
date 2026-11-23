@@ -1,6 +1,8 @@
 package controllers
 
 import com.gu.media.MediaAtomMakerPermissionsProvider
+import com.gu.media.iconik.IconikSyncAction._
+import com.gu.media.iconik.IconikSyncEntityType._
 import com.gu.media.iconik.{
   AtomIconikRef,
   DynamoFailure,
@@ -145,8 +147,8 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
     val service = mock[IconikSyncService[DynamoReadError]]
     val syncResult = IconikSyncResult(
       id = "proj-1",
-      entityType = "project",
-      action = "updated",
+      entityType = Project,
+      action = Updated,
       updatedAtomIds = List("atom-1")
     )
     when(service.sync("proj-1"))
@@ -155,6 +157,8 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
     val result = callSync(controller(service))
 
     status(result) shouldBe OK
+    (contentAsJson(result) \ "entityType").as[String] shouldBe "project"
+    (contentAsJson(result) \ "action").as[String] shouldBe "updated"
     contentAsJson(result) shouldBe syncResult.toJson
     routes.IconikController
       .syncCollection("proj-1", dryRun = false)
@@ -176,14 +180,14 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
     val service = mock[IconikSyncService[DynamoReadError]]
     val preview = IconikSyncResult(
       "proj-1",
-      "project",
-      "updated",
+      Project,
+      Updated,
       dryRun = true,
       changes = List(
         IconikSyncChange(
           "proj-1",
-          "project",
-          "updated",
+          Project,
+          Updated,
           Json.obj(
             "title" -> Json.obj("before" -> "Old title", "after" -> "New title")
           )
@@ -222,13 +226,13 @@ class IconikSyncControllerTest extends AnyFlatSpec with Matchers {
       SyncNotFound("missing") -> NOT_FOUND,
       SyncCascadeBlocked(
         "comm-1",
-        "commission",
+        Commission,
         "sync child projects first",
         blockingChildIds = List("proj-1"),
         atomIdsPreventingSync = List("atom-1")
       ) -> CONFLICT,
       SyncInvalidHierarchy("bad", "invalid hierarchy") -> UNPROCESSABLE_ENTITY,
-      SyncWriteConflict("atom-1", "atom") -> CONFLICT,
+      SyncWriteConflict("atom-1", Atom) -> CONFLICT,
       SyncIconikError(IconikRequestFailure("iconik 500")) -> BAD_GATEWAY,
       SyncDynamoError(DynamoFailure("dynamo down")) -> SERVICE_UNAVAILABLE
     )
