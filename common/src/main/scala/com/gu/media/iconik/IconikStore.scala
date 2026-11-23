@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class IconikStore[E](
-    projectStore: IconikDataStoreWithParentIndex[IconikProject, E],
+    projectStore: IconikProjectStore[E],
     commissionStore: IconikDataStoreWithParentIndex[IconikCommission, E],
     workingGroupStore: IconikDataStore[IconikWorkingGroup, E]
 ) extends Logging {
@@ -88,6 +88,23 @@ class IconikStore[E](
     project
   }
 
+  def upsertWorkingGroup(workingGroup: IconikWorkingGroup): Unit =
+    workingGroupStore.upsert(workingGroup)
+
+  def upsertCommission(commission: IconikCommission): Unit =
+    commissionStore.upsert(commission)
+
+  def upsertProject(project: IconikProject): Unit =
+    projectStore.upsert(project)
+
+  def syncProject(
+      before: Option[IconikProject],
+      after: IconikProject
+  ): Either[E, Boolean] =
+    before.fold(projectStore.createIfAbsent(after))(
+      projectStore.updateHierarchy(_, after)
+    )
+
   def deleteProjectsByCommissionId(commissionId: String): Either[E, Unit] = {
     // Get all projects for this commission and delete them
     projectStore.getByParentId(commissionId).map { projects =>
@@ -95,8 +112,16 @@ class IconikStore[E](
     }
   }
 
+  def deleteProject(projectId: String): Unit = {
+    projectStore.deleteById(projectId)
+  }
+
   def deleteCommission(commissionId: String): Unit = {
     commissionStore.deleteById(commissionId)
+  }
+
+  def deleteWorkingGroup(workingGroupId: String): Unit = {
+    workingGroupStore.deleteById(workingGroupId)
   }
 
 }

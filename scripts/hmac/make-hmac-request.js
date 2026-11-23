@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const path = require('path');
 
 const ArgumentParser = require('argparse').ArgumentParser;
-const parseHocon = require('hoconjs/build/hoconjs');
+const parseHocon = require('@pushcorn/hocon-parser');
 const chalk = require('chalk');
 
 const HMACRequest = require('./hmac-request');
@@ -42,16 +43,7 @@ parser.addArgument('--config-file', {
 const args = parser.parseArgs();
 
 function getConfig() {
-  return new Promise((resolve, reject) => {
-    fs.readFile(args.configFile, 'utf8', (err, rawFile) => {
-      if (err) {
-        reject(err);
-      } else {
-        const config = parseHocon(rawFile);
-        resolve(config);
-      }
-    })
-  });
+  return parseHocon({ url: path.resolve(args.configFile), strict: true });
 }
 
 function getData() {

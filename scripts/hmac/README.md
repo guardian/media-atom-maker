@@ -2,6 +2,8 @@
 
 Node script to perform an HMAC request to an endpoint.
 
+Requires Node.js 18 or later. Run `yarn install --frozen-lockfile` from the repository root first.
+
 This script is primarily designed to use in DEV and as we use a self-signed certificate in DEV,
 you'll want to set `NODE_TLS_REJECT_UNAUTHORIZED=0` before making any calls. For example:
 
@@ -42,3 +44,9 @@ By default, configuration is read from `/etc/gu/media-atom-maker.private.conf` (
 Specify a custom configuration file using the `--config-file` argument.
 
 This is useful if you want to make an HMAC request to CODE or PROD. 
+
+The full HOCON config is supported, including substitutions with hyphenated keys.
+
+## Tests
+
+From the repository root, run `node --test scripts/hmac/hmac-request.test.js`.

@@ -34,3 +34,36 @@ class IconikInMemoryStoreWithParentIndex[T <: IconikItemWithParentId, E]
     store.filter(_.parentId == id).toList
   )
 }
+
+class IconikInMemoryProjectStore[E]
+    extends IconikInMemoryStoreWithParentIndex[IconikProject, E]
+    with IconikProjectStore[E] {
+  override def createIfAbsent(project: IconikProject): Either[E, Boolean] =
+    synchronized {
+      val absent = !store.exists(_.id == project.id)
+      if (absent) upsert(project)
+      Right(absent)
+    }
+
+  override def updateHierarchy(
+      before: IconikProject,
+      after: IconikProject
+  ): Either[E, Boolean] =
+    synchronized {
+      val matching = store.find(p =>
+        p.id == before.id && p.title == before.title &&
+          p.commissionId == before.commissionId &&
+          p.workingGroupId == before.workingGroupId
+      )
+      matching.foreach { current =>
+        upsert(
+          current.copy(
+            title = after.title,
+            commissionId = after.commissionId,
+            workingGroupId = after.workingGroupId
+          )
+        )
+      }
+      Right(matching.isDefined)
+    }
+}
