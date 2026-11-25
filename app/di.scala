@@ -68,7 +68,7 @@ class MediaAtomMaker(context: Context)
   override lazy val httpFilters: Seq[EssentialFilter] =
     Seq(
       new SentryTracingFilter(sentryConfig)(executionContext),
-      new RequestLoggingFilter()(materializer)
+      new RequestLoggingFilter()(materializer, executionContext)
     ) ++ super.httpFilters.filterNot(_ == allowedHostsFilter)
 
   override lazy val httpErrorHandler = new RequestLogging(
