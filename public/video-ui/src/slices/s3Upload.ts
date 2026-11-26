@@ -7,6 +7,10 @@ import {
   uploadSubtitleFile
 } from '../services/UploadsApi';
 import { errorDetails } from '../util/errorDetails';
+import {
+  startChromeUploadHeartbeat,
+  stopChromeUploadHeartbeat
+} from '../util/chromeUploadRecovery';
 import { showError } from './error';
 import { getUploads } from './uploads';
 
@@ -77,6 +81,7 @@ export const startVideoUpload = createAsyncThunk<
   { id: string; file: File; selfHost?: boolean }
 >('s3Upload/startVideoUpload', ({ id, file, selfHost }, { dispatch }) => {
   dispatch(setS3UploadStatusToStarting());
+  startChromeUploadHeartbeat();
   return createUpload(id, file, selfHost)
     .then(upload => {
       dispatch(s3UploadStarted(upload));
@@ -98,7 +103,8 @@ export const startVideoUpload = createAsyncThunk<
     .catch(err => {
       dispatch(showError(errorDetails(err), err));
       dispatch(setS3UploadStatusToError());
-    });
+    })
+    .finally(stopChromeUploadHeartbeat);
 });
 
 export const startSubtitleFileUpload = createAsyncThunk<
