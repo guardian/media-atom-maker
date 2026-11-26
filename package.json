@@ -81,7 +81,7 @@
     "@sentry/browser": "^10.69.0",
     "@sentry/vite-plugin": "^5.4.0",
     "@vitejs/plugin-react-swc": "^3.7.1",
-    "fast-check": "^3.6.3",
+    "fast-check": "^4.10.2",
     "moment": "^2.31.0",
     "panda-session": "^0.1.6",
     "prop-types": "^15.8.1",
